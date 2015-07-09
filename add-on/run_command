@@ -1,0 +1,1 @@
+bin/debug/native/ppc-linux-user/qemu-ppc  /scratch/suhdarshan/qemu-1.2.0/my_tests/erat_sieve_50.elf >& suhas/run_log
