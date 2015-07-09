@@ -174,6 +174,10 @@ struct TranslationBlock {
        jmp_first */
     struct TranslationBlock *jmp_next[2];
     struct TranslationBlock *jmp_first;
+
+    /* Modified */
+    uint32_t _tbID; /* tb id*/
+    /* End Modified */
 };
 
 #include "exec/spinlock.h"

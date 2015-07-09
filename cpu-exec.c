@@ -346,6 +346,15 @@ static void cpu_handle_debug_exception(CPUArchState *env)
 
 /* main execution loop */
 
+/* Modified */
+#include "my_defines.h"
+extern unsigned long cumulative_latency;
+extern struct tbInfo TB_record[];
+extern target_ulong tb_pctracker;
+extern uint32_t tb_IDtracker; //tracks path of execution through ID
+extern void cz_unseenPair(uint32_t tbID);
+/* End Modified */
+
 volatile sig_atomic_t exit_request;
 
 int cpu_exec(CPUArchState *env)
@@ -360,6 +369,10 @@ int cpu_exec(CPUArchState *env)
     uint8_t *tc_ptr;
     uintptr_t next_tb;
     SyncClocks sc;
+
+    /* Modified */
+    uint8_t pairBeenCzed;
+    /* End Modified */
 
     /* This must be volatile so it is not trashed by longjmp() */
     volatile bool have_tb_lock = false;
@@ -430,6 +443,10 @@ int cpu_exec(CPUArchState *env)
 
             next_tb = 0; /* force lookup of first TB */
             for(;;) {
+                /* Modified */
+                pairBeenCzed = 0;
+                /* End Modified */
+
                 interrupt_request = cpu->interrupt_request;
                 if (unlikely(interrupt_request)) {
                     if (unlikely(cpu->singlestep_enabled & SSTEP_NOIRQ)) {
@@ -483,6 +500,30 @@ int cpu_exec(CPUArchState *env)
                 spin_lock(&tcg_ctx.tb_ctx.tb_lock);
                 have_tb_lock = true;
                 tb = tb_find_fast(env);
+
+                /* Modified */
+                /* check to see if this pred-bb combination has been czed. */
+                uint8_t myI;
+                for(myI=0; myI < TB_record[tb->_tbID]._predCount; myI++) {
+                    /* check if this predecessor has already been recorded 
+                     * if((TB_record[tb->_tbID]._tbMetrics[myI])._predPC == tb_pctracker) */
+                    if( (TB_record[tb->_tbID]._tbMetrics[myI])._predID == tb_IDtracker) { 
+                        pairBeenCzed = 1; 
+                        break;
+                    }
+                }
+              
+                /* if this pair has not been czed then do so */
+                if( pairBeenCzed == 0 ) {
+                    printf("\nDebugging in main loop. Unseen pair being czed.\n");
+                    printf("BB start is %x and Pred start is %x\n", tb->pc, tb_pctracker);
+                    cz_unseenPair(tb->_tbID);
+                }  
+               
+                /* reset flag to 0. Doing so again since not sure if the start of the for loop is the right place */
+                pairBeenCzed = 0;
+                /* End Modified */
+
                 /* Note: we do it here to avoid a gcc bug on Mac OS X when
                    doing it in tb_find_slow */
                 if (tcg_ctx.tb_ctx.tb_invalidated_flag) {
@@ -584,5 +625,10 @@ int cpu_exec(CPUArchState *env)
 
     /* fail safe : never use current_cpu outside cpu_exec() */
     current_cpu = NULL;
+
+    /* Modified */
+    printf ("Total dynamic instruction latencies are %lu\n", cumulative_latency);
+    /* End Modified */
+
     return ret;
 }
