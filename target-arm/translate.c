@@ -82,27 +82,26 @@ static TCGv_i64 cpu_F0d, cpu_F1d;
 #include "exec/gen-icount.h"
 
 /* Modified */
-//static count of TB. Also acts as TB id
+/* static count of TB. Also acts as TB id */
 static uint32_t tb_counter = 0; 
-//flag to indicate first ever TB. Clear it
-//when not first ever TB
+/* flag to indicate first ever TB. 
+ * Clear it when not first ever TB */
 static uint8_t is_firstTB = 1;
-void characterise_Tb(uint32_t * bbOpcPtr, target_ulong * bbPcPtr,
-                     uint32_t * predOpcPtr, target_ulong * predPcPtr, 
-                     unsigned int tbSize, unsigned int predSize,
-                     uint32_t hasPred, uint32_t tbID, short int tbID_valid);
+static void charaterise_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
+                     uint32_t *predOpcPtr, target_ulong *predPcPtr, 
+                     uint32_t tbSize, uint32_t predSize,
+                     uint32_t hasPred, uint32_t tbID, int16_t tbID_valid);
 #include "operations.h"
 
-typedef struct tbCode
-{
-  uint32_t _myOpcodes[MAX_INSTTS_PER_TB];
-  target_ulong _myPCs[MAX_INSTTS_PER_TB]; //Can we store just start and end? - TBD
-  unsigned int _tbSize;
-  char _valid;
-} tbCode;
+typedef struct TBCode {
+    uint32_t myOpcodes[MAX_INSTTS_PER_TB];
+    target_ulong myPCs[MAX_INSTTS_PER_TB]; //Can we store just start and end? - TBD
+    uint32_t tbSize;
+    char valid;
+} TBCode;
 
 //data structure to store target opcodes and PCs for all TBs
-tbCode tb_targetCode[MAX_TB] = {{{0}}};
+static TBCode TB_targetCode[MAX_TB] = {{{0}}};
 /* End Modified */
 
 static const char *regnames[] =
@@ -11180,10 +11179,6 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
     int max_insns;
 
     /* Modified */
-    /* arrays for storing opcodes and pc, used for creating 
-      timing model stimulus */
-    //uint32_t myOpcodes[MAX_INSTTS_PER_TB];
-    //target_ulong myPCs[MAX_INSTTS_PER_TB];
     unsigned int tbSize = 0;
     /* End Modified */
 
@@ -11264,13 +11259,11 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
     gen_tb_start(tb);
 
     /* Modified */
-    /*Adding code for inserting opcode for call to  dummy function */
+    /* Adding code for inserting opcode for call to dummy function */
     
-    //printf("QEMU inserting code for print_tb tb_counter = %d\n", tb_counter);
-    //gen_op_print_tb_encountered(tb_counter, tb->pc); 
-    gen_op_increment_latency(tb_counter, tb->pc); 
-    tb->_tbID = tb_counter;
-    tb_counter++;
+    // printf("QEMU inserting code for print_tb tb_counter = %d\n", tb_counter);
+    gen_op_increment_latency(tb_counter, pc_start); 
+    tb->tb_id = tb_counter;
     /* End Modified */
 
     tcg_clear_temp_count();
@@ -11345,6 +11338,7 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
                 }
             }
         }
+
         if (search_pc) {
             j = tcg_op_buf_count();
             if (lj < j) {
@@ -11360,13 +11354,6 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
 
         if (num_insns + 1 == max_insns && (tb->cflags & CF_LAST_IO))
             gen_io_start();
-
-        /* Modified */
-        //storing opcode and PC for this instruction
-        tb_targetCode[tb_counter-1]._myOpcodes[tbSize] = ctx.opcode;
-        tb_targetCode[tb_counter-1]._myPCs[tbSize] = ctx.nip;
-        tbSize++;
-        /* End Modified */
 
         if (unlikely(qemu_loglevel_mask(CPU_LOG_TB_OP | CPU_LOG_TB_OP_OPT))) {
             tcg_gen_debug_insn_start(dc->pc);
@@ -11389,7 +11376,12 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
             goto done_generating;
         }
 
+        uint32_t insn;
         if (dc->thumb) {
+            /* Modified */
+            insn = arm_lduw_code(env, dc->pc, dc->bswap_code);
+            /* End Modified */
+
             disas_thumb_insn(env, dc);
             if (dc->condexec_mask) {
                 dc->condexec_cond = (dc->condexec_cond & 0xe)
@@ -11400,7 +11392,7 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
                 }
             }
         } else {
-            unsigned int insn = arm_ldl_code(env, dc->pc, dc->bswap_code);
+            insn = arm_ldl_code(env, dc->pc, dc->bswap_code);
             dc->pc += 4;
             disas_arm_insn(dc, insn);
         }
@@ -11415,11 +11407,18 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
                     dc->pc);
         }
 
+        /* Modified */
+        // storing opcode and PC for this instruction
+        TB_targetCode[tb_counter].myOpcodes[tbSize] = dc->opcode;
+        TB_targetCode[tb_counter].myPCs[tbSize] = dc->pc;
+        ++tbSize;
+        /* End Modified */
+
         /* Translation stops when a conditional branch is encountered.
          * Otherwise the subsequent code could get translated several times.
          * Also stop translation when a page boundary is reached.  This
          * ensures prefetch aborts occur at the right place.  */
-        num_insns ++;
+        ++num_insns;
     } while (!dc->is_jmp && !tcg_op_buf_full() &&
              !cs->singlestep_enabled &&
              !singlestep &&
@@ -11429,38 +11428,41 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
 
     /* Modified */
     //mark this entry in the target code buffer as valid
-    tb_targetCode[tb_counter-1]._valid = 1;
-    tb_targetCode[tb_counter-1]._tbSize = tbSize;
+    TB_targetCode[tb_counter].valid = 1;
+    TB_targetCode[tb_counter].tbSize = tbSize;
 
-    //printf("\nDebugging tb_targetCode buffer. tb_counter - 1 is %u", 
-    //                  (tb_counter-1));
-    //printf(", tb_IDtracker is %u\n", tb_IDtracker);
-    //int ii;
-    //for(ii=0; ii<tb_targetCode[tb_IDtracker]._tbSize; ii++)
-    //{
-    //  printf("At pred PC %x opcode is %x\n", 
-    //           tb_targetCode[tb_IDtracker]._myPCs[ii],
-    //           tb_targetCode[tb_IDtracker]._myOpcodes[ii]);
-    //}
-    //for(ii=0; ii<tbSize; ii++)
-    //{
-    //  printf("At BB PC %x opcode is %x\n", 
-    //           tb_targetCode[tb_counter-1]._myPCs[ii],
-    //           tb_targetCode[tb_counter-1]._myOpcodes[ii]);
-    //}
+    /* printf("\nDebugging TB_targetCode buffer. tb_counter is %u", tb_counter);
+    printf(", tb_IDtracker is %u\n", tb_IDtracker);
+    int ii;
+    for(ii=0; ii<TB_targetCode[tb_IDtracker].tbSize; ii++) {
+      printf("At pred PC %x opcode is %x\n", 
+               TB_targetCode[tb_IDtracker].myPCs[ii],
+               TB_targetCode[tb_IDtracker].myOpcodes[ii]);
+    }
+    for(ii=0; ii<tbSize; ii++) {
+      printf("At BB PC %x opcode is %x\n", 
+               TB_targetCode[tb_counter].myPCs[ii],
+               TB_targetCode[tb_counter].myOpcodes[ii]);
+    }
+    */
 
     /* extract timing metric for this TB */
-    characterise_Tb(
-                    tb_targetCode[tb_counter-1]._myOpcodes, //bb opcodes
-                    tb_targetCode[tb_counter-1]._myPCs,
-                    tb_targetCode[tb_IDtracker]._myOpcodes, //pred opcode
-                    tb_targetCode[tb_IDtracker]._myPCs, tbSize, 
-                    tb_targetCode[tb_IDtracker]._tbSize, //pred tb size
-                    (is_firstTB == 0), 0 ,0 );
-    //clearing flag to indicate that have come to end of first
-    //ever TB. Used to determine whether current TB has a predecessor
-    //or not
+    charaterise_TB(
+            TB_targetCode[tb_counter].myOpcodes,    //bb opcodes
+            TB_targetCode[tb_counter].myPCs,
+            TB_targetCode[tb_IDtracker].myOpcodes,  //pred opcode
+            TB_targetCode[tb_IDtracker].myPCs, 
+            tbSize, 
+            TB_targetCode[tb_IDtracker].tbSize,     //pred tb size
+            (is_firstTB == 0), 0, 0);
+    /* clearing flag to indicate that have come to end of first
+    ever TB. 
+    Used to determine whether current TB has a predecessor or not
+    */
     is_firstTB = 0;
+
+    ++tb_counter;
+
     /* End Modified */
 
     if (tb->cflags & CF_LAST_IO) {
@@ -11672,209 +11674,199 @@ void restore_state_to_opc(CPUARMState *env, TranslationBlock *tb, int pc_pos)
 }
 
 /* Modified */
-//Fn names - cz_unseenPair
-//Purpose - Cz a BB for a predecessor that hasn't been onthe path
-// to the BB before.Assuming that opcodes for BB and pred. would
-//have been stored already in the target buffer
-//Uses tb ID tracker to get ID of predecessor and takes as input
-//BB's tb ID.
+/* Func name - cz_unseenPair
+ * Purpose - Characterize a BB for a predecessor that hasn't been 
+ * on the path to the BB before. Assuming that opcodes for BB and 
+ * predecessor would have been stored already in the target buffer 
+ * Uses tb ID tracker to get ID of predecessor and takes as input 
+ * BB's tb ID.
+ */
 void cz_unseenPair(uint32_t tbID)
 {
-  characterise_Tb(
-                    tb_targetCode[tbID]._myOpcodes, //bb opcode
-                    tb_targetCode[tbID]._myPCs, 
-                    tb_targetCode[tb_IDtracker]._myOpcodes, //pred opcodes
-                    tb_targetCode[tb_IDtracker]._myPCs,
-                    tb_targetCode[tbID]._tbSize, //bb size
-                    tb_targetCode[tb_IDtracker]._tbSize, //pred size
-                    (is_firstTB == 0), tbID, 1);
+    charaterise_TB(
+            TB_targetCode[tbID].myOpcodes,  // curr opcodes
+            TB_targetCode[tbID].myPCs,      // curr bb PC 
+            TB_targetCode[tb_IDtracker].myOpcodes,  // pred opcodes
+            TB_targetCode[tb_IDtracker].myPCs,      // pred bb PC 
+            TB_targetCode[tbID].tbSize,     // curr bb size
+            TB_targetCode[tb_IDtracker].tbSize,     // pred bb size
+            (is_firstTB == 0), tbID, 1);
 
 }
 
 
-//Fn name - characterise_Tb
-//Purpose - Create ISS input stimulus for given opcodes and their
-// addresses. Then execute them on the ISS and extract cycle count
-// from output trace
-//Inputs - 
-//  opcPtr - array of instruction opcodes for TB
-//  pcPtr - array of corresponding instruction addresses
-//  tbSize - Number of instructions in TB
-
-void characterise_Tb(uint32_t * bbOpcPtr, target_ulong * bbPcPtr,
-                     uint32_t * predOpcPtr, target_ulong * predPcPtr, 
-                     unsigned int tbSize, unsigned int predSize,
-                     uint32_t hasPred, uint32_t tbID, short int tbID_valid)
+/* Func name - charaterise_TB 
+ * Purpose - Create ISS input stimulus for given opcodes and their addresses. 
+ * Then execute them on the ISS and extract cycle count from output trace 
+ * Inputs: 
+ * opcPtr - array of instruction opcodes for TB 
+ * pcPtr - array of corresponding instruction addresses 
+ * tbSize - Number of instructions in TB
+ */
+static void charaterise_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
+                     uint32_t *predOpcPtr, target_ulong *predPcPtr, 
+                     uint32_t tbSize, uint32_t predSize,
+                     uint32_t hasPred, uint32_t tbID, int16_t tbID_valid)
 {
-  //compose_ISS_input(opcPtr, pcPtr, tbSize);
-  //if no instts. return.
-  if (tbSize < 1)
-   return;
+    // compose_ISS_input(opcPtr, pcPtr, tbSize);
+    // if no instts. return.
+    if (tbSize < 1) return;
 
-  //NOTE!!! - bounds checking TBD  -  VERY IMPORTANT!!!!!
+    //NOTE!!! - bounds checking TBD  -  VERY IMPORTANT!!!!!
 
-  char issInputRegPrefix[] = "RD n=NIA d=0x";
-  char issInputPEAprefix[] = "RD n=PEA d=";
-  char issInputCRAprefix[] = "RD n=CRA d=0x";
-  //assuming PC is 32 bit and so can have 8 0s as prefix
-  char issInputMem1[] = "MD n=Mem ra=0x00000000";
-  char issInputMem2[] = " d=0x";
-  uint8_t brkCnt = 1; //number of times end address will be encountered
+    char issInputRegPrefix[] = "RD n=NIA d=0x";
+    char issInputPEAprefix[] = "RD n=PEA d=";
+    char issInputCRAprefix[] = "RD n=CRA d=0x";
+    //assuming PC is 32 bit and so can have 8 0s as prefix
+    char issInputMem1[] = "MD n=Mem ra=0x00000000";
+    char issInputMem2[] = " d=0x";
+    uint8_t brkCnt = 1; //number of times end address will be encountered
                       //encountered before BB pair's ISS execution is stopped
 
-  //target_ulong predStartPC;
-  //target_ulong predEndPC;
-  target_ulong bbStartPC = bbPcPtr[0];
-  target_ulong bbEndPC = bbPcPtr[(tbSize-1)];
-  char bbStartPCstr[50], bbEndPCstr[50],
-       gfatherPCstr[50], ggfatherPCstr[50];
-  char predEndPCstr[50] = "0";
-  char predStartPCstr[50] = "0";
-  char brkCntstr[5];
-  char issStimPath[500] = "/scratch/suhdarshan/suhas-qemu-1.2.0/suhas/in_dats/";
-  char extnStr[] = ".dat";
-  char issStimName[100] = "dat_0x";
-  char tbMetricFname[100];
-  unsigned int i;
+    //target_ulong predStartPC;
+    //target_ulong predEndPC;
+    target_ulong bbStartPC = bbPcPtr[0];
+    target_ulong bbEndPC = bbPcPtr[(tbSize-1)];
+    char bbStartPCstr[50], bbEndPCstr[50], 
+         gfatherPCstr[50], ggfatherPCstr[50];
+    char predEndPCstr[50] = "0";
+    char predStartPCstr[50] = "0";
+    char brkCntstr[5];
+    char issStimPath[500] = "/scratch/suhdarshan/suhas-qemu-1.2.0/suhas/in_dats/";
+    char extnStr[] = ".dat";
+    char issStimName[100] = "dat_0x";
+    char tbMetricFname[100];
+    unsigned int i;
 
-  /*===================  creating ISS input file name ===================*/
-  sprintf(bbStartPCstr, "%x", bbStartPC); 
-  printf("\nDebugging in characterise_tb. BB start PC is %x end PC is %x\n", 
+    /*===================  creating ISS input file name ===================*/
+    sprintf(bbStartPCstr, "%x", bbStartPC); 
+    printf("\nDebugging in characterise_tb. BB start PC is %x end PC is %x\n", 
               bbStartPC, bbEndPC);
-  sprintf(bbEndPCstr, "0x%x", bbEndPC); 
-  if(hasPred)
-  {
-    //if pred is same as BB, end address will be encountered twice
-    //before stopping ISS execution of BB pair
-    //brkCnt += (predPcPtr[0] == bbStartPC);
-    //changing comparison to end PCs - refer case of BBs 
-    //0x10000224 and 0x10000248 in erat_sieve_50
-    brkCnt += (predPcPtr[(predSize-1)] == bbEndPC);
-    printf("Pred start PC is %x end PC is %x\n", 
-              predPcPtr[0], predPcPtr[(predSize-1)]);
-    sprintf(predStartPCstr, "%x", predPcPtr[0]); 
-    sprintf(predEndPCstr, "0x%x", predPcPtr[(predSize-1)]); 
+    sprintf(bbEndPCstr, "0x%x", bbEndPC); 
+    if (hasPred) {
+        /* if pred is same as BB, end address will be encountered 
+         * twice before stopping ISS execution of BB pair
+         * brkCnt += (predPcPtr[0] == bbStartPC); 
+         * changing comparison to end PCs - refer case of BBs 
+         * 0x10000224 and 0x10000248 in erat_sieve_50
+         */
+        brkCnt += (predPcPtr[(predSize-1)] == bbEndPC);
+        printf("Pred start PC is %x end PC is %x\n", 
+                  predPcPtr[0], predPcPtr[(predSize-1)]);
+        sprintf(predStartPCstr, "%x", predPcPtr[0]); 
+        sprintf(predEndPCstr, "0x%x", predPcPtr[(predSize-1)]); 
 
-    //create file name separately
-    strcat(issStimName, predStartPCstr);
-    strcat(issStimName, "_0x");
-  }
-    
-  strcat(issStimName, bbStartPCstr);
-  //create metric recording file name
-  strcpy(tbMetricFname, issStimName);
-  //continue with ISS stim name creation
-  strcat(issStimName, extnStr);
-  //input ISS stim with full path
-  strcat(issStimPath, issStimName);
-
-  FILE * fPtr = fopen(issStimPath, "w");
- 
-  if(hasPred) //if has predecessor, insert its opcodes
-  {
-    fprintf(fPtr, "%s%s\n\n", issInputRegPrefix, predStartPCstr);
-    fprintf(fPtr, "%s%s\n\n", issInputPEAprefix, predEndPCstr);
-    fprintf(fPtr, "%s%s\n\n", issInputCRAprefix, bbStartPCstr);
-
-    for(i=0; i < predSize; i++)
-    {
-      fprintf(fPtr, "%s%x%s%x\n", issInputMem1, predPcPtr[i], 
-                                issInputMem2, predOpcPtr[i]);
+        //create file name separately
+        strcat(issStimName, predStartPCstr);
+        strcat(issStimName, "_0x");
     }
-  }
-  else
-    fprintf(fPtr, "%s%s\n\n", issInputRegPrefix, bbStartPCstr);
+
+    strcat(issStimName, bbStartPCstr);
+    //create metric recording file name
+    strcpy(tbMetricFname, issStimName);
+    //continue with ISS stim name creation
+    strcat(issStimName, extnStr);
+    //input ISS stim with full path
+    strcat(issStimPath, issStimName);
+
+    FILE *fPtr = fopen(issStimPath, "w");
+    //if has predecessor, insert its opcodes
+    if (hasPred) {
+        fprintf(fPtr, "%s%s\n\n", issInputRegPrefix, predStartPCstr);
+        fprintf(fPtr, "%s%s\n\n", issInputPEAprefix, predEndPCstr);
+        fprintf(fPtr, "%s%s\n\n", issInputCRAprefix, bbStartPCstr);
+
+        for(i = 0; i < predSize; ++i) {
+            fprintf(fPtr, "%s%x%s%x\n", issInputMem1, predPcPtr[i] 
+                    , issInputMem2, predOpcPtr[i]);
+        }
+    } else {
+        fprintf(fPtr, "%s%s\n\n", issInputRegPrefix, bbStartPCstr);
+    }
+
+    //insert bb opcodes
+    for (i = 0; i < tbSize; ++i) {
+        fprintf(fPtr, "%s%x%s%x\n", issInputMem1, bbPcPtr[i], 
+                                    issInputMem2, bbOpcPtr[i]);
+    }
+
+    fclose(fPtr);
+
+    /*================  init, exec DAT on ISS, analyse trace  ================*/
+
+    sprintf(gfatherPCstr, "%x", pred_pctracker); 
+    sprintf(ggfatherPCstr, "%x", gfather_pctracker); 
+    sprintf(brkCntstr, "%d", brkCnt); 
+    char bbStartPCstrPy[50] = "0x";
+    strcat(bbStartPCstrPy, bbStartPCstr);
+
+    char orchestrate_cmd[500] = "python /scratch/suhdarshan/suhas-qemu-1.2.0/suhas/scripts/orchestrate.py -n ";
+    strcat(orchestrate_cmd, issStimName);
+    strcat(orchestrate_cmd, " -s ");
+    strcat(orchestrate_cmd, bbStartPCstrPy);
+    strcat(orchestrate_cmd, " -e ");
+    strcat(orchestrate_cmd, bbEndPCstr);
+    strcat(orchestrate_cmd, " -p ");
+    strcat(orchestrate_cmd, predEndPCstr);
+    strcat(orchestrate_cmd, " -g ");
+    strcat(orchestrate_cmd, gfatherPCstr);
+    strcat(orchestrate_cmd, " -G ");
+    strcat(orchestrate_cmd, ggfatherPCstr);
+    strcat(orchestrate_cmd, " -b ");
+    strcat(orchestrate_cmd, brkCntstr);
+
+    system(orchestrate_cmd); 
+
+    /*==============  init, exec DAT on ISS, analyse trace  END =============*/
+
+    /*=================== read ISS trace analysis result  ===================*/
+
+    char tbMetricPath[500] = "/scratch/suhdarshan/suhas-qemu-1.2.0/suhas/tb_metrics/";
+    //char tbMetricFname[100] = "dat_0x";
+    int result;
+    //strcat (tbMetricFname, startPCstr);
+    strcat (tbMetricFname, ".metric");
+    strcat (tbMetricPath, tbMetricFname);
+    FILE *FHANDLE  = fopen(tbMetricPath, "r");
+    uint32_t predNum;
+
+    //read and store cz. result in global array of TB metrics
+    //indexed by tb_counter - 1 as tb_counter has already been
+    //incremented
+    //result = fscanf(FHANDLE,"%d", &TB_latency[tb_counter]);
+
+    //get count of predecessors encountered for this TB
+    //uint32_t predNum = TB_record[tb_counter].predCount;
+    //NOTE - bounds check TBD!!
+    //read and store cz. result in global array of TB metrics
+    //indexed by tb_counter - 1 as tb_counter has already been incremented
+    //(TB_record[tb_counter].tbMetrics[predNum]).predPC = tb_pctracker;
+    //  (TB_record[tb_counter].tbMetrics[predNum]).predID = tb_IDtracker;
+    //  result = fscanf(FHANDLE,"%d", 
+    //            &(TB_record[tb_counter].tbMetrics[predNum]).latency );
   
-  for(i=0; i < tbSize; i++) //insert bb opcodes
-  {
-    fprintf(fPtr, "%s%x%s%x\n", issInputMem1, bbPcPtr[i], 
-                                issInputMem2, bbOpcPtr[i]);
-  }
+    if (tbID_valid == 1) {
+        predNum = TB_record[tbID].predCount;
+        (TB_record[tbID].tbMetrics[predNum]).predID = tb_IDtracker;
+        result = fscanf(FHANDLE,"%d", 
+                  &(TB_record[tbID].tbMetrics[predNum]).latency );
+    } else {
+        predNum = TB_record[tb_counter].predCount;
+        (TB_record[tb_counter].tbMetrics[predNum]).predID = tb_IDtracker;
+        result = fscanf(FHANDLE,"%d", 
+                  &(TB_record[tb_counter].tbMetrics[predNum]).latency );
+    }  
+    if (result <= 0)
+        printf("ERROR OCCURRED in characterise\n");
 
-  fclose(fPtr);
+    /* increment predecessor count */
+    if (tbID_valid == 1) {
+        TB_record[tbID].predCount++;
+    } else {
+        TB_record[tb_counter].predCount++;
+    }
 
-  /*================  init, exec DAT on ISS, analyse trace  ================*/
-
-  sprintf(gfatherPCstr, "%x", pred_pctracker); 
-  sprintf(ggfatherPCstr, "%x", gfather_pctracker); 
-  sprintf(brkCntstr, "%d", brkCnt); 
-  char bbStartPCstrPy[50] = "0x";
-  strcat(bbStartPCstrPy, bbStartPCstr);
-
-  char orchestrate_cmd[500] = "python /scratch/suhdarshan/suhas-qemu-1.2.0/suhas/scripts/orchestrate.py -n ";
-  strcat(orchestrate_cmd, issStimName);
-  strcat(orchestrate_cmd, " -s ");
-  strcat(orchestrate_cmd, bbStartPCstrPy);
-  strcat(orchestrate_cmd, " -e ");
-  strcat(orchestrate_cmd, bbEndPCstr);
-  strcat(orchestrate_cmd, " -p ");
-  strcat(orchestrate_cmd, predEndPCstr);
-  strcat(orchestrate_cmd, " -g ");
-  strcat(orchestrate_cmd, gfatherPCstr);
-  strcat(orchestrate_cmd, " -G ");
-  strcat(orchestrate_cmd, ggfatherPCstr);
-  strcat(orchestrate_cmd, " -b ");
-  strcat(orchestrate_cmd, brkCntstr);
-  
-  system(orchestrate_cmd); 
-
-  /*==============  init, exec DAT on ISS, analyse trace  END =============*/
-
-  /*=================== read ISS trace analysis result  ===================*/
-
-  char tbMetricPath[500] = "/scratch/suhdarshan/suhas-qemu-1.2.0/suhas/tb_metrics/";
-  //char tbMetricFname[100] = "dat_0x";
-  int result;
-  //strcat (tbMetricFname, startPCstr);
-  strcat (tbMetricFname, ".metric");
-  strcat (tbMetricPath, tbMetricFname);
-  FILE *FHANDLE  = fopen(tbMetricPath, "r");
-  uint32_t predNum;
-  //read and store cz. result in global array of TB metrics
-  //indexed by tb_counter - 1 as tb_counter has already been
-  //incremented
-  //result = fscanf(FHANDLE,"%d", &TB_latency[tb_counter-1]);
-  
- //get count of predecessors encountered for this TB
-  //uint32_t predNum = TB_record[tb_counter-1]._predCount;
-  //NOTE - bounds check TBD!!
-  //read and store cz. result in global array of TB metrics
-  //indexed by tb_counter - 1 as tb_counter has already been incremented
-  //(TB_record[tb_counter-1]._tbMetrics[predNum])._predPC = tb_pctracker;
-//  (TB_record[tb_counter-1]._tbMetrics[predNum])._predID = tb_IDtracker;
-//  result = fscanf(FHANDLE,"%d", 
-//            &(TB_record[tb_counter-1]._tbMetrics[predNum])._latency );
-  
-  if (tbID_valid == 1)
-  {
-    predNum = TB_record[tbID]._predCount;
-    //(TB_record[tbID]._tbMetrics[predNum])._predPC = tb_pctracker;
-    (TB_record[tbID]._tbMetrics[predNum])._predID = tb_IDtracker;
-    result = fscanf(FHANDLE,"%d", 
-              &(TB_record[tbID]._tbMetrics[predNum])._latency );
-  }
-  else
-  {
-    predNum = TB_record[tb_counter-1]._predCount;
-    //(TB_record[tb_counter-1]._tbMetrics[predNum])._predPC = tb_pctracker;
-    (TB_record[tb_counter-1]._tbMetrics[predNum])._predID = tb_IDtracker;
-    result = fscanf(FHANDLE,"%d", 
-              &(TB_record[tb_counter-1]._tbMetrics[predNum])._latency );
-  }  
-  if (result <= 0)
-    printf("ERROR OCCURRED in characterise\n");
-
-  //increment predecessor count
-  if (tbID_valid == 1)
-  {
-    TB_record[tbID]._predCount++;
-  }
-  else
-  {
-    TB_record[tb_counter-1]._predCount++;
-  }
-
-  fclose(FHANDLE);
+    fclose(FHANDLE);
 }
 /* End Modified */
 

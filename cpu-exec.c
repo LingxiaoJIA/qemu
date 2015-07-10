@@ -347,11 +347,6 @@ static void cpu_handle_debug_exception(CPUState *cpu)
 
 /* Modified */
 #include "my_defines.h"
-extern unsigned long cumulative_latency;
-extern struct tbInfo TB_record[];
-extern target_ulong tb_pctracker;
-extern uint32_t tb_IDtracker; //tracks path of execution through ID
-extern void cz_unseenPair(uint32_t tbID);
 /* End Modified */
 
 volatile sig_atomic_t exit_request;
@@ -501,22 +496,23 @@ int cpu_exec(CPUState *cpu)
                 tb = tb_find_fast(cpu);
 
                 /* Modified */
-                /* check to see if this pred-bb combination has been czed. */
-                uint8_t myI;
-                for(myI=0; myI < TB_record[tb->_tbID]._predCount; myI++) {
-                    /* check if this predecessor has already been recorded 
-                     * if((TB_record[tb->_tbID]._tbMetrics[myI])._predPC == tb_pctracker) */
-                    if( (TB_record[tb->_tbID]._tbMetrics[myI])._predID == tb_IDtracker) { 
+                /* check to see if this pred-bb combination has been characterized. */
+                uint32_t i;
+                uint32_t tb_id = tb->tb_id;
+                uint32_t predCount = TB_record[tb_id].predCount;
+                for (i = 0; i < predCount, ++i) {
+                    /* check if this predecessor has already been recorded */
+                    if (TB_record[tb_id].tbMetrics[i].predID == tb_IDtracker) { 
                         pairBeenCzed = 1; 
                         break;
                     }
                 }
               
-                /* if this pair has not been czed then do so */
-                if( pairBeenCzed == 0 ) {
-                    printf("\nDebugging in main loop. Unseen pair being czed.\n");
-                    printf("BB start is %x and Pred start is %x\n", tb->pc, tb_pctracker);
-                    cz_unseenPair(tb->_tbID);
+                /* if this pair has not been charaterized then do so */
+                if (pairBeenCzed == 0) {
+                    printf("\nDebugging in main loop. Unseen pair being charaterized.\n");
+                    printf("BB start at %x and Predecessor start at %x\n", tb->pc, tb_pctracker);
+                    cz_unseenPair(tb_id);
                 }  
                
                 /* reset flag to 0. Doing so again since not sure if the start of the for loop is the right place */
@@ -626,7 +622,7 @@ int cpu_exec(CPUState *cpu)
     current_cpu = NULL;
 
     /* Modified */
-    printf ("Total dynamic instruction latencies are %lu\n", cumulative_latency);
+    printf ("Total dynamic instruction latencies are %lu\n", Cumulative_latency);
     /* End Modified */
 
     return ret;
