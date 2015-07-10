@@ -176,7 +176,7 @@ struct TranslationBlock {
     struct TranslationBlock *jmp_first;
 
     /* Modified */
-    uint32_t _tbID; /* tb id*/
+    uint32_t tb_id; /* tb id*/
     /* End Modified */
 };
 
