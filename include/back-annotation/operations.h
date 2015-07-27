@@ -11,6 +11,8 @@ target_ulong pred_pctracker = 0; // tracks predecessor in path of execution
 target_ulong gfather_pctracker = 0; // tracks predecessor's predecessor in path of execution
 /* TB metric storage array. For each TB, holds metrics per predecessor */
 
+void increment_latency(uint32_t tbCount, target_ulong startPC);
+
 void increment_latency(uint32_t tbCount, target_ulong startPC)
 {
     /* increment latency count for this tb */
@@ -31,7 +33,6 @@ void increment_latency(uint32_t tbCount, target_ulong startPC)
     tb_IDtracker = tbCount;
 }
 
-//tcg/tcg.h:typedef tcg_target_ulong TCGArg;
 static inline void gen_op_fc_call_2p (tcg_target_long fc, uint32_t tbCount, target_ulong startPC)
 {
     TCGv_ptr    func;
@@ -39,13 +40,15 @@ static inline void gen_op_fc_call_2p (tcg_target_long fc, uint32_t tbCount, targ
 
     func = tcg_const_ptr(fc);
 
-    args[0] = tcg_const_i64 (tbCount);
-    args[1] = tcg_const_ptr (startPC);
+    // args[0] = tcg_const_i64 (tbCount);
+    // args[1] = tcg_const_ptr (startPC);
+    args[0] = (TCGArg) tbCount;
+    args[1] = (TCGArg) startPC;
 
     tcg_gen_callN (&tcg_ctx, func, dh_retvar_void, 2, args);
 
-    tcg_temp_free_ptr (args[0]);
-    tcg_temp_free_ptr (args[1]);
+    // tcg_temp_free_ptr (args[0]);
+    // tcg_temp_free_ptr (args[1]);
     tcg_temp_free_ptr (func);
     //printf("TB_ENCOUNTERED1 \n" );
 }

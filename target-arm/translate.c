@@ -38,7 +38,7 @@
 #include "trace-tcg.h"
 
 /* Modified */
-#include "my_defines.h" //max instts per TB etc
+#include "back-annotation/my_defines.h" //max instts per TB etc
 /* End Modified */
 
 #define ENABLE_ARCH_4T    arm_dc_feature(s, ARM_FEATURE_V4T)
@@ -82,16 +82,7 @@ static TCGv_i64 cpu_F0d, cpu_F1d;
 #include "exec/gen-icount.h"
 
 /* Modified */
-/* static count of TB. Also acts as TB id */
-static uint32_t tb_counter = 0; 
-/* flag to indicate first ever TB. 
- * Clear it when not first ever TB */
-static uint8_t is_firstTB = 1;
-static void charaterise_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
-                     uint32_t *predOpcPtr, target_ulong *predPcPtr, 
-                     uint32_t tbSize, uint32_t predSize,
-                     uint32_t hasPred, uint32_t tbID, int16_t tbID_valid);
-#include "operations.h"
+#include "back-annotation/operations.h"
 
 typedef struct TBCode {
     uint32_t myOpcodes[MAX_INSTTS_PER_TB];
@@ -102,6 +93,16 @@ typedef struct TBCode {
 
 //data structure to store target opcodes and PCs for all TBs
 static TBCode TB_targetCode[MAX_TB] = {{{0}}};
+
+/* static count of TB. Also acts as TB id */
+static uint32_t tb_counter = 0; 
+/* flag to indicate first ever TB. 
+ * Clear it when not first ever TB */
+static uint8_t is_firstTB = 1;
+static void charaterise_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
+                     uint32_t *predOpcPtr, target_ulong *predPcPtr, 
+                     uint32_t tbSize, uint32_t predSize,
+                     uint32_t hasPred, uint32_t tbID, int16_t tbID_valid);
 /* End Modified */
 
 static const char *regnames[] =
@@ -11377,6 +11378,7 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
         }
 
         uint32_t insn;
+        printf("\nDisassebly machine code\n"); 
         if (dc->thumb) {
             /* Modified */
             insn = arm_lduw_code(env, dc->pc, dc->bswap_code);
@@ -11409,9 +11411,10 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
 
         /* Modified */
         // storing opcode and PC for this instruction
-        TB_targetCode[tb_counter].myOpcodes[tbSize] = dc->opcode;
+        TB_targetCode[tb_counter].myOpcodes[tbSize] = insn;
         TB_targetCode[tb_counter].myPCs[tbSize] = dc->pc;
         ++tbSize;
+        printf("\nStoring opcode and PC\n"); 
         /* End Modified */
 
         /* Translation stops when a conditional branch is encountered.
@@ -11428,6 +11431,7 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
 
     /* Modified */
     //mark this entry in the target code buffer as valid
+    printf("\nDone writing block %d\n", tb_counter); 
     TB_targetCode[tb_counter].valid = 1;
     TB_targetCode[tb_counter].tbSize = tbSize;
 
@@ -11732,7 +11736,7 @@ static void charaterise_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     char predEndPCstr[50] = "0";
     char predStartPCstr[50] = "0";
     char brkCntstr[5];
-    char issStimPath[500] = "/scratch/suhdarshan/suhas-qemu-1.2.0/suhas/in_dats/";
+    char issStimPath[500] = "/home/rexjlx/qemu/temp/in_dats/";
     char extnStr[] = ".dat";
     char issStimName[100] = "dat_0x";
     char tbMetricFname[100];
@@ -11792,8 +11796,13 @@ static void charaterise_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
 
     fclose(fPtr);
 
+    (void) gfatherPCstr; 
+    (void) ggfatherPCstr;
+    (void) brkCntstr;
+
     /*================  init, exec DAT on ISS, analyse trace  ================*/
 
+    /*
     sprintf(gfatherPCstr, "%x", pred_pctracker); 
     sprintf(ggfatherPCstr, "%x", gfather_pctracker); 
     sprintf(brkCntstr, "%d", brkCnt); 
@@ -11816,11 +11825,13 @@ static void charaterise_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     strcat(orchestrate_cmd, brkCntstr);
 
     system(orchestrate_cmd); 
+    */
 
     /*==============  init, exec DAT on ISS, analyse trace  END =============*/
 
     /*=================== read ISS trace analysis result  ===================*/
 
+    /*
     char tbMetricPath[500] = "/scratch/suhdarshan/suhas-qemu-1.2.0/suhas/tb_metrics/";
     //char tbMetricFname[100] = "dat_0x";
     int result;
@@ -11859,7 +11870,7 @@ static void charaterise_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     if (result <= 0)
         printf("ERROR OCCURRED in characterise\n");
 
-    /* increment predecessor count */
+    // increment predecessor count 
     if (tbID_valid == 1) {
         TB_record[tbID].predCount++;
     } else {
@@ -11867,6 +11878,7 @@ static void charaterise_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     }
 
     fclose(FHANDLE);
+    */
 }
 /* End Modified */
 

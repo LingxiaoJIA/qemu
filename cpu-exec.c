@@ -346,7 +346,7 @@ static void cpu_handle_debug_exception(CPUState *cpu)
 /* main execution loop */
 
 /* Modified */
-#include "my_defines.h"
+#include "back-annotation/my_defines.h"
 /* End Modified */
 
 volatile sig_atomic_t exit_request;
@@ -496,26 +496,32 @@ int cpu_exec(CPUState *cpu)
                 tb = tb_find_fast(cpu);
 
                 /* Modified */
-                /* check to see if this pred-bb combination has been characterized. */
+                /* check to see if this pred-bb combination 
+                 * has been characterized. */
+                printf("\nDone translating blocks.\n");
                 uint32_t i;
-                uint32_t tb_id = tb->tb_id;
-                uint32_t predCount = TB_record[tb_id].predCount;
-                for (i = 0; i < predCount, ++i) {
+                const uint32_t tb_id = tb->tb_id;
+                const uint32_t predCount = TB_record[tb_id].predCount;
+                for (i = 0; i < predCount; ++i) {
                     /* check if this predecessor has already been recorded */
-                    if (TB_record[tb_id].tbMetrics[i].predID == tb_IDtracker) { 
-                        pairBeenCzed = 1; 
+                    if (TB_record[tb_id].tbMetrics[i].predID == tb_IDtracker) {
+                        pairBeenCzed = 1;
                         break;
                     }
                 }
-              
+
                 /* if this pair has not been charaterized then do so */
                 if (pairBeenCzed == 0) {
-                    printf("\nDebugging in main loop. Unseen pair being charaterized.\n");
-                    printf("BB start at %x and Predecessor start at %x\n", tb->pc, tb_pctracker);
+                    printf("\nDebugging in main loop. \
+                            Unseen pair being charaterized.\n");
+                    printf("BB start at %x and Predecessor start at %x\n", 
+                            tb->pc, tb_pctracker);
                     cz_unseenPair(tb_id);
-                }  
+                }
                
-                /* reset flag to 0. Doing so again since not sure if the start of the for loop is the right place */
+                /* reset flag to 0. 
+                 * Doing so again since not sure if the start of the for loop 
+                 * is the right place */
                 pairBeenCzed = 0;
                 /* End Modified */
 
@@ -622,7 +628,8 @@ int cpu_exec(CPUState *cpu)
     current_cpu = NULL;
 
     /* Modified */
-    printf ("Total dynamic instruction latencies are %lu\n", Cumulative_latency);
+    printf ("Total dynamic instruction latencies are %u\n", 
+            Cumulative_latency);
     /* End Modified */
 
     return ret;
