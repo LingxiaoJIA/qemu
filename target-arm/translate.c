@@ -11737,7 +11737,7 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     char predEndPCstr[50] = "0";
     char predStartPCstr[50] = "0";
     char brkCntstr[5];
-    char issStimPath[500] = "/home/rexjlx/qemu/temp/in_dats/";
+    char issStimPath[500] = "/home/rexjla/qemu/temp/in_dats/";
     char extnStr[] = ".dat";
     char issStimName[100] = "dat_0x";
     char tbMetricFname[100];
