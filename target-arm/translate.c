@@ -11273,12 +11273,16 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
 #ifdef CONFIG_USER_ONLY
         /* Intercept jump to the magic kernel page.  */
         if (dc->pc >= 0xffff0000) {
+            printf("----pc = %x\n", dc->pc);
             /* We always get here via a jump, so know we are not in a
                conditional execution block.  */
             gen_exception_internal(EXCP_KERNEL_TRAP);
             dc->is_jmp = DISAS_UPDATE;
             break;
+        } else {
+            printf("pc = %x\n", dc->pc);
         }
+
 #else
         if (dc->pc >= 0xfffffff0 && arm_dc_feature(dc, ARM_FEATURE_M)) {
             /* We always get here via a jump, so know we are not in a
