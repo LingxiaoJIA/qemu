@@ -11263,9 +11263,13 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
     /* Modified */
     /* Adding code for inserting opcode for call to dummy function */
 
-    printf("\n    gen_intermediate_code: QEMU inserting code for block %d\n", tb_counter);
-    gen_op_increment_latency(tb_counter, pc_start);
-    tb->tb_id = tb_counter;
+    if (dc->pc < 0xffff0000) {
+        printf("\n    gen_intermediate_code: Inserting code for block %d\n", tb_counter);
+        gen_op_increment_latency(tb_counter, pc_start);
+        tb->tb_id = tb_counter;
+    } else {
+        printf("\n    gen_intermediate_code: Does not insert code since this is an exception");
+    }
     /* End Modified */
 
     tcg_clear_temp_count();
@@ -11379,7 +11383,9 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
         }
 
         uint32_t insn;
+        /* Modified */
         printf("\n    gen_intermediate_code: Disassebly machine code\n");
+        /* End Modified */
         if (dc->thumb) {
             /* Modified */
             insn = arm_lduw_code(env, dc->pc, dc->bswap_code);
@@ -11431,13 +11437,12 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
              num_insns < max_insns);
 
     /* Modified */
-    //mark this entry in the target code buffer as valid
-    printf("\n    gen_intermediate_code: Done generating block %d\n", tb_counter);
-    printf("    gen_intermediate_code: Block %d size is %d\n", tb_counter, tbSize);
-    TB_targetCode[tb_counter].valid = 1;
-    TB_targetCode[tb_counter].tbSize = tbSize;
-#include <assert.h>
-    //assert(tbSize != 0);
+    if (tbSize != 0) {
+        printf("\n    gen_intermediate_code: Done generating block %d\n", tb_counter);
+        printf("    gen_intermediate_code: Block %d size is %d\n", tb_counter, tbSize);
+        //mark this entry in the target code buffer as valid
+        TB_targetCode[tb_counter].valid = 1;
+        TB_targetCode[tb_counter].tbSize = tbSize;
 
     /* printf("\nDebugging TB_targetCode buffer. tb_counter is %u", tb_counter);
     printf(", tb_IDtracker is %u\n", tb_IDtracker);
@@ -11455,7 +11460,7 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
     */
 
     /* extract timing metric for this TB */
-    characterize_TB(
+        characterize_TB(
             TB_targetCode[tb_counter].myOpcodes,    //bb opcodes
             TB_targetCode[tb_counter].myPCs,
             TB_targetCode[tb_IDtracker].myOpcodes,  //pred opcode
@@ -11467,9 +11472,10 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
     ever TB.
     Used to determine whether current TB has a predecessor or not
     */
-    is_firstTB = 0;
+        is_firstTB = 0;
 
-    ++tb_counter;
+        ++tb_counter;
+    }
 
     /* End Modified */
 
@@ -11752,7 +11758,7 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
             characterize_TB: BB start PC is %x end PC is %x\n",
               bbStartPC, bbEndPC);
     sprintf(bbEndPCstr, "0x%x", bbEndPC);
-    if (hasPred) {
+    if (hasPred && predSize > 0) {
         /* if pred is same as BB, end address will be encountered
          * twice before stopping ISS execution of BB pair
          * brkCnt += (predPcPtr[0] == bbStartPC);
@@ -11780,7 +11786,7 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
 
     FILE *fPtr = fopen(issStimPath, "w");
     //if has predecessor, insert its opcodes
-    if (hasPred) {
+    if (hasPred && predSize > 0) {
         fprintf(fPtr, "%s%s\n\n", issInputRegPrefix, predStartPCstr);
         fprintf(fPtr, "%s%s\n\n", issInputPEAprefix, predEndPCstr);
         fprintf(fPtr, "%s%s\n\n", issInputCRAprefix, bbStartPCstr);
