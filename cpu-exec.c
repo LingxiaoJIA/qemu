@@ -438,7 +438,7 @@ int cpu_exec(CPUState *cpu)
             next_tb = 0; /* force lookup of first TB */
             for(;;) {
                 /* Modified */
-                printf("\nMain loop: Entering main loop.\n");
+                //printf("\nMain loop: Entering main loop.\n");
                 pairBeenCzed = 0;
                 /* End Modified */
 
@@ -512,7 +512,7 @@ int cpu_exec(CPUState *cpu)
 
                 /* if this pair has not been characterized then do so */
                 if (pairBeenCzed == 0) {
-                    printf("\nMain loop: ------------------- Unseen pair being characterized.\n");
+                    //printf("\nMain loop: ------------------- Unseen pair being characterized.\n");
                     cz_unseenPair(tb_id);
                 }
 
@@ -625,8 +625,8 @@ int cpu_exec(CPUState *cpu)
     current_cpu = NULL;
 
     /* Modified */
-    printf ("\nTotal dynamic instruction latencies are %u\n",
-            Cumulative_latency);
+    //printf ("\nTotal dynamic instruction latencies are %u\n",
+    //        Cumulative_latency);
     /* End Modified */
 
     return ret;
