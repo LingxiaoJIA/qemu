@@ -51,18 +51,15 @@ inline void gen_op_fc_call_2p (tcg_target_long fc, target_ulong tbCount, target_
     //args[0] = (TCGArg) tbCount;
     //args[1] = (TCGArg) startPC;
 
-    printf("\nTB_ENCOUNTERED0 \n" );
     //tcg_gen_callN (&tcg_ctx, fc, dh_retvar_void, 2, args);
     tcg_gen_callN (&tcg_ctx, (void *)fc, dh_retvar_void, 2, args);
 
     tcg_temp_free_i64 ((TCGv_i64)args[0]);
     tcg_temp_free_i64 ((TCGv_i64)args[1]);
     //tcg_temp_free_ptr (func);
-    printf("\nTB_ENCOUNTERED1 \n" );
 }
 
 inline void gen_op_increment_latency(uint32_t tbCount, target_ulong startPC)
 {
     gen_op_fc_call_2p ((tcg_target_long) helper_increment_latency, tbCount, startPC);
-    printf("\nTB_ENCOUNTERED2 \n" );
 }
