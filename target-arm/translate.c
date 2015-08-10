@@ -11419,7 +11419,7 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
         /* Modified */
         // storing opcode and PC for this instruction
         TB_targetCode[tb_counter].myOpcodes[tbSize] = insn;
-        TB_targetCode[tb_counter].myPCs[tbSize] = dc->pc;
+        TB_targetCode[tb_counter].myPCs[tbSize] = dc->pc-4;
         ++tbSize;
         //printf("\n    gen_intermediate_code: Storing opcode and PC for line %d\n", tbSize);
         /* End Modified */
