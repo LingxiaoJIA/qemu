@@ -11180,7 +11180,9 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
     int max_insns;
 
     /* Modified */
-    //printf("\n    gen_intermediate_code: Generating blocks.\n");
+#if BA_DEBUG
+    printf("\n    gen_intermediate_code: Generating blocks.\n");
+#endif
     unsigned int tbSize = 0;
     /* End Modified */
 
@@ -11264,11 +11266,15 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
     /* Adding code for inserting opcode for call to dummy function */
 
     if (dc->pc < 0xffff0000) {
-        //printf("\n    gen_intermediate_code: Inserting code for block %d\n", tb_counter);
+#if BA_DEBUG
+        printf("\n    gen_intermediate_code: Inserting code for block %d\n", tb_counter);
+#endif
         gen_op_increment_latency(tb_counter, pc_start);
         tb->tb_id = tb_counter;
     } else {
-        //printf("\n    gen_intermediate_code: Does not insert code since this is an exception");
+#if BA_DEBUG
+        printf("\n    gen_intermediate_code: Does not insert code since this is an exception");
+#endif
     }
     /* End Modified */
 
@@ -11384,7 +11390,9 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
 
         uint32_t insn;
         /* Modified */
-        //printf("\n    gen_intermediate_code: Disassebly machine code\n");
+#if BA_DEBUG
+        printf("\n    gen_intermediate_code: Disassebly machine code\n");
+#endif
         /* End Modified */
         if (dc->thumb) {
             /* Modified */
@@ -11421,7 +11429,9 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
         TB_targetCode[tb_counter].myOpcodes[tbSize] = insn;
         TB_targetCode[tb_counter].myPCs[tbSize] = dc->pc-4;
         ++tbSize;
-        //printf("\n    gen_intermediate_code: Storing opcode and PC for line %d\n", tbSize);
+#if BA_DEBUG
+        printf("\n    gen_intermediate_code: Storing opcode and PC for line %d\n", tbSize);
+#endif
         /* End Modified */
 
         /* Translation stops when a conditional branch is encountered.
@@ -11438,8 +11448,10 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
 
     /* Modified */
     if (tbSize != 0) {
-        //printf("\n    gen_intermediate_code: Done generating block %d\n", tb_counter);
-        //printf("    gen_intermediate_code: Block %d size is %d\n", tb_counter, tbSize);
+#if BA_DEBUG
+        printf("\n    gen_intermediate_code: Done generating block %d\n", tb_counter);
+        printf("    gen_intermediate_code: Block %d size is %d\n", tb_counter, tbSize);
+#endif
         //mark this entry in the target code buffer as valid
         TB_targetCode[tb_counter].valid = 1;
         TB_targetCode[tb_counter].tbSize = tbSize;
@@ -11754,9 +11766,10 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
 
     /*===================  creating ISS input file name ===================*/
     sprintf(bbStartPCstr, "%x", bbStartPC);
-    /* printf("\n        characterize_TB: Debugging in characterize_tb.\n        characterize_TB: BB start PC is %x end PC is %x\n",
+#if BA_DEBUG
+    printf("\n        characterize_TB: Debugging in characterize_tb.\n        characterize_TB: BB start PC is %x end PC is %x\n",
             bbStartPC, bbEndPC);
-            */
+#endif
     sprintf(bbEndPCstr, "0x%x", bbEndPC);
     if (hasPred && predSize > 0) {
         /* if pred is same as BB, end address will be encountered
@@ -11766,8 +11779,10 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
          * 0x10000224 and 0x10000248 in erat_sieve_50
          */
         brkCnt += (predPcPtr[(predSize-1)] == bbEndPC);
-        //printf("        characterize_TB: Pred start PC is %x end PC is %x\n",
-        //          predPcPtr[0], predPcPtr[(predSize-1)]);
+#if BA_DEBUG
+        printf("        characterize_TB: Pred start PC is %x end PC is %x\n",
+                  predPcPtr[0], predPcPtr[(predSize-1)]);
+#endif
         sprintf(predStartPCstr, "%x", predPcPtr[0]);
         sprintf(predEndPCstr, "0x%x", predPcPtr[(predSize-1)]);
 

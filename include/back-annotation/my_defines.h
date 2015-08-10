@@ -4,6 +4,7 @@
 #define MAX_INSTTS_PER_TB 100
 #define MAX_TB 10000
 #define MAX_PRED 10
+#define BA_DEBUG 0
 
 extern uint32_t Cumulative_latency;
 extern uint32_t tb_IDtracker; //tracks path of execution through ID
