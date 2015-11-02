@@ -11452,13 +11452,13 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
     if (tbSize != 0) {
 #if BA_DEBUG
         printf("\n    gen_intermediate_code: Done generating block %d\n", tb_id);
-        printf("    gen_intermediate_code: Block %d size is %d\n", tb_id, tbSize);
 #endif
         //mark this entry in the target code buffer as valid
         TB_targetCode[tb_id].valid = 1;
         TB_targetCode[tb_id].tbSize = tbSize;
         TB_targetCode[tb_id].startPC = TB_targetCode[tb_id].myPCs[0];
         TB_targetCode[tb_id].endPC = TB_targetCode[tb_id].myPCs[tbSize-1];
+        fprintf(stderr, "gen_intermediate_code: Block %d size is %d, startPC = 0x%x, endPC = 0x%x\n", tb_id, tbSize, TB_targetCode[tb_id].startPC, TB_targetCode[tb_id].endPC);
 
     /* printf("\nDebugging TB_targetCode buffer. tb_id is %u", tb_id);
     printf(", tb_IDtracker is %u\n", tb_IDtracker);
@@ -11892,7 +11892,6 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     if (tbID_valid == 1) {
         predNum = TB_record[tbID].predCount;
         (TB_record[tbID].tbMetrics[predNum]).predID = tb_IDtracker;
-        printf("tbID = %d, predID = %d\n", tbID, tb_IDtracker);
         /*
         result = fscanf(FHANDLE,"%d",
                   &(TB_record[tbID].tbMetrics[predNum]).latency );
@@ -11900,7 +11899,6 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     } else {
         predNum = TB_record[tb_id].predCount;
         (TB_record[tb_id].tbMetrics[predNum]).predID = tb_IDtracker;
-        printf("tb_id = %d, pred_id = %d\n", tb_id, tb_IDtracker);
         /*
         result = fscanf(FHANDLE,"%d",
                   &(TB_record[tb_id].tbMetrics[predNum]).latency );

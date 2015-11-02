@@ -34,7 +34,6 @@ void HELPER(increment_latency)(uint64_t tb_id, uint64_t startPC)
         }
     }
     //update predecessor and current tb trackers
-    printf("  tb_id = %d, pred_id = %d\n", tb_id, tb_IDtracker);
     gfather_pctracker = pred_pctracker;
     pred_pctracker = tb_pctracker;
     tb_pctracker = startPC;

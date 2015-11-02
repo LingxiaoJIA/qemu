@@ -505,7 +505,6 @@ int cpu_exec(CPUState *cpu)
                 const uint32_t tb_id = tb->tb_id;
                 const uint32_t predCount = TB_record[tb_id].predCount;
 
-                printf("  tb_id = %d, pred_id = %d\n", tb_id, tb_IDtracker);
                 for (i = 0; i < predCount; ++i) {
                     /* check if this predecessor has already been recorded */
                     if (TB_record[tb_id].tbMetrics[i].predID == tb_IDtracker) {
@@ -521,7 +520,6 @@ int cpu_exec(CPUState *cpu)
 #endif
                     cz_unseenPair(tb_id);
                 }
-                printf("  tb_id = %d, pred_id = %d\n", tb_id, tb_IDtracker);
 
                 /* reset flag to 0.
                  * Doing so again since not sure if the start of the for loop
