@@ -87,6 +87,7 @@ static TCGv_i64 cpu_F0d, cpu_F1d;
 typedef struct TBCode {
     uint32_t myOpcodes[MAX_INSTTS_PER_TB];
     target_ulong myPCs[MAX_INSTTS_PER_TB]; //Can we store just start and end? - TBD
+    target_ulong startPC, endPC;
     uint32_t tbSize;
     char valid;
 } TBCode;
@@ -95,7 +96,7 @@ typedef struct TBCode {
 static TBCode TB_targetCode[MAX_TB] = {{{0}}};
 
 /* static count of TB. Also acts as TB id */
-static uint32_t tb_counter = 0;
+static uint32_t tb_id = 0;
 /* flag to indicate first ever TB.
  * Clear it when not first ever TB */
 static uint8_t is_firstTB = 1;
@@ -11174,7 +11175,7 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
     DisasContext dc1, *dc = &dc1;
     CPUBreakpoint *bp;
     int j, lj;
-    target_ulong pc_start;
+    target_ulong pc_start, old_pc;
     target_ulong next_page_start;
     int num_insns;
     int max_insns;
@@ -11267,10 +11268,10 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
 
     if (dc->pc < 0xffff0000) {
 #if BA_DEBUG
-        printf("\n    gen_intermediate_code: Inserting code for block %d\n", tb_counter);
+        printf("\n    gen_intermediate_code: Inserting code for block %d\n", tb_id);
 #endif
-        gen_op_increment_latency(tb_counter, pc_start);
-        tb->tb_id = tb_counter;
+        gen_op_increment_latency(tb_id, pc_start);
+        tb->tb_id = tb_id;
     } else {
 #if BA_DEBUG
         printf("\n    gen_intermediate_code: Does not insert code since this is an exception");
@@ -11393,6 +11394,7 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
 #if BA_DEBUG
         printf("\n    gen_intermediate_code: Disassebly machine code\n");
 #endif
+        old_pc = dc->pc;
         /* End Modified */
         if (dc->thumb) {
             /* Modified */
@@ -11426,12 +11428,12 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
 
         /* Modified */
         // storing opcode and PC for this instruction
-        TB_targetCode[tb_counter].myOpcodes[tbSize] = insn;
-        TB_targetCode[tb_counter].myPCs[tbSize] = dc->pc-4;
-        ++tbSize;
+        TB_targetCode[tb_id].myOpcodes[tbSize] = insn;
+        TB_targetCode[tb_id].myPCs[tbSize] = old_pc;
 #if BA_DEBUG
         printf("\n    gen_intermediate_code: Storing opcode and PC for line %d\n", tbSize);
 #endif
+        ++tbSize;
         /* End Modified */
 
         /* Translation stops when a conditional branch is encountered.
@@ -11449,14 +11451,16 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
     /* Modified */
     if (tbSize != 0) {
 #if BA_DEBUG
-        printf("\n    gen_intermediate_code: Done generating block %d\n", tb_counter);
-        printf("    gen_intermediate_code: Block %d size is %d\n", tb_counter, tbSize);
+        printf("\n    gen_intermediate_code: Done generating block %d\n", tb_id);
+        printf("    gen_intermediate_code: Block %d size is %d\n", tb_id, tbSize);
 #endif
         //mark this entry in the target code buffer as valid
-        TB_targetCode[tb_counter].valid = 1;
-        TB_targetCode[tb_counter].tbSize = tbSize;
+        TB_targetCode[tb_id].valid = 1;
+        TB_targetCode[tb_id].tbSize = tbSize;
+        TB_targetCode[tb_id].startPC = TB_targetCode[tb_id].myPCs[0];
+        TB_targetCode[tb_id].endPC = TB_targetCode[tb_id].myPCs[tbSize-1];
 
-    /* printf("\nDebugging TB_targetCode buffer. tb_counter is %u", tb_counter);
+    /* printf("\nDebugging TB_targetCode buffer. tb_id is %u", tb_id);
     printf(", tb_IDtracker is %u\n", tb_IDtracker);
     int ii;
     for(ii=0; ii<TB_targetCode[tb_IDtracker].tbSize; ii++) {
@@ -11466,15 +11470,15 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
     }
     for(ii=0; ii<tbSize; ii++) {
       printf("At BB PC %x opcode is %x\n",
-               TB_targetCode[tb_counter].myPCs[ii],
-               TB_targetCode[tb_counter].myOpcodes[ii]);
+               TB_targetCode[tb_id].myPCs[ii],
+               TB_targetCode[tb_id].myOpcodes[ii]);
     }
     */
 
     /* extract timing metric for this TB */
         characterize_TB(
-            TB_targetCode[tb_counter].myOpcodes,    //bb opcodes
-            TB_targetCode[tb_counter].myPCs,
+            TB_targetCode[tb_id].myOpcodes,    //bb opcodes
+            TB_targetCode[tb_id].myPCs,
             TB_targetCode[tb_IDtracker].myOpcodes,  //pred opcode
             TB_targetCode[tb_IDtracker].myPCs,
             tbSize,
@@ -11486,7 +11490,7 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
     */
         is_firstTB = 0;
 
-        ++tb_counter;
+        ++tb_id;
     }
 
     /* End Modified */
@@ -11766,11 +11770,11 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
 
     /*===================  creating ISS input file name ===================*/
     sprintf(bbStartPCstr, "%x", bbStartPC);
+    sprintf(bbEndPCstr, "0x%x", bbEndPC);
 #if BA_DEBUG
     printf("\n        characterize_TB: Debugging in characterize_tb.\n        characterize_TB: BB start PC is %x end PC is %x\n",
             bbStartPC, bbEndPC);
 #endif
-    sprintf(bbEndPCstr, "0x%x", bbEndPC);
     if (hasPred && predSize > 0) {
         /* if pred is same as BB, end address will be encountered
          * twice before stopping ISS execution of BB pair
@@ -11810,6 +11814,8 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
             fprintf(fPtr, "%s%x%s%x\n", issInputMem1, predPcPtr[i]
                     , issInputMem2, predOpcPtr[i]);
         }
+
+        fprintf(fPtr, "\n");
     } else {
         fprintf(fPtr, "%s%s\n\n", issInputRegPrefix, bbStartPCstr);
     }
@@ -11869,33 +11875,35 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     uint32_t predNum;
 
     //read and store cz. result in global array of TB metrics
-    //indexed by tb_counter - 1 as tb_counter has already been
+    //indexed by tb_id - 1 as tb_id has already been
     //incremented
-    //result = fscanf(FHANDLE,"%d", &TB_latency[tb_counter]);
+    //result = fscanf(FHANDLE,"%d", &TB_latency[tb_id]);
 
     //get count of predecessors encountered for this TB
-    //uint32_t predNum = TB_record[tb_counter].predCount;
+    //uint32_t predNum = TB_record[tb_id].predCount;
     //NOTE - bounds check TBD!!
     //read and store cz. result in global array of TB metrics
-    //indexed by tb_counter - 1 as tb_counter has already been incremented
-    //(TB_record[tb_counter].tbMetrics[predNum]).predPC = tb_pctracker;
-    //  (TB_record[tb_counter].tbMetrics[predNum]).predID = tb_IDtracker;
+    //indexed by tb_id - 1 as tb_id has already been incremented
+    //(TB_record[tb_id].tbMetrics[predNum]).predPC = tb_pctracker;
+    //  (TB_record[tb_id].tbMetrics[predNum]).predID = tb_IDtracker;
     //  result = fscanf(FHANDLE,"%d",
-    //            &(TB_record[tb_counter].tbMetrics[predNum]).latency );
+    //            &(TB_record[tb_id].tbMetrics[predNum]).latency );
 
     if (tbID_valid == 1) {
         predNum = TB_record[tbID].predCount;
         (TB_record[tbID].tbMetrics[predNum]).predID = tb_IDtracker;
+        printf("tbID = %d, predID = %d\n", tbID, tb_IDtracker);
         /*
         result = fscanf(FHANDLE,"%d",
                   &(TB_record[tbID].tbMetrics[predNum]).latency );
                   */
     } else {
-        predNum = TB_record[tb_counter].predCount;
-        (TB_record[tb_counter].tbMetrics[predNum]).predID = tb_IDtracker;
+        predNum = TB_record[tb_id].predCount;
+        (TB_record[tb_id].tbMetrics[predNum]).predID = tb_IDtracker;
+        printf("tb_id = %d, pred_id = %d\n", tb_id, tb_IDtracker);
         /*
         result = fscanf(FHANDLE,"%d",
-                  &(TB_record[tb_counter].tbMetrics[predNum]).latency );
+                  &(TB_record[tb_id].tbMetrics[predNum]).latency );
                   */
     }
     /*
@@ -11907,7 +11915,7 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     if (tbID_valid == 1) {
         TB_record[tbID].predCount++;
     } else {
-        TB_record[tb_counter].predCount++;
+        TB_record[tb_id].predCount++;
     }
 
     /*
