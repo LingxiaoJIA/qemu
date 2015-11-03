@@ -11458,7 +11458,7 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
         TB_targetCode[tb_id].tbSize = tbSize;
         TB_targetCode[tb_id].startPC = TB_targetCode[tb_id].myPCs[0];
         TB_targetCode[tb_id].endPC = TB_targetCode[tb_id].myPCs[tbSize-1];
-        fprintf(stderr, "gen_intermediate_code: Block %d size is %d, startPC = 0x%x, endPC = 0x%x\n", tb_id, tbSize, TB_targetCode[tb_id].startPC, TB_targetCode[tb_id].endPC);
+        fprintf(stderr, "gen_intermediate_code: Block %d size is %2d, startPC = 0x%x, endPC = 0x%x\n", tb_id, tbSize, TB_targetCode[tb_id].startPC, TB_targetCode[tb_id].endPC);
 
     /* printf("\nDebugging TB_targetCode buffer. tb_id is %u", tb_id);
     printf(", tb_IDtracker is %u\n", tb_IDtracker);
@@ -11744,11 +11744,12 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
 
     //NOTE!!! - bounds checking TBD  -  VERY IMPORTANT!!!!!
 
-    char issInputRegPrefix[] = "RD n=NIA d=0x";
-    char issInputPEAprefix[] = "RD n=PEA d=";
-    char issInputCRAprefix[] = "RD n=CRA d=0x";
+    char issInputPreStart[] = "PreStart PC = 0x";
+    char issInputPreEnd[] = "PreEnd   PC = 0x";
+    char issInputStart[] = "Start    PC = 0x";
+    char issInputEnd[] = "End      PC = 0x";
     //assuming PC is 32 bit and so can have 8 0s as prefix
-    char issInputMem1[] = "MD n=Mem ra=0x00000000";
+    char issInputMem1[] = "        Mem = 0x00000000";
     char issInputMem2[] = " d=0x";
     uint8_t brkCnt = 1; //number of times end address will be encountered
                       //encountered before BB pair's ISS execution is stopped
@@ -11770,7 +11771,7 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
 
     /*===================  creating ISS input file name ===================*/
     sprintf(bbStartPCstr, "%x", bbStartPC);
-    sprintf(bbEndPCstr, "0x%x", bbEndPC);
+    sprintf(bbEndPCstr, "%x", bbEndPC);
 #if BA_DEBUG
     printf("\n        characterize_TB: Debugging in characterize_tb.\n        characterize_TB: BB start PC is %x end PC is %x\n",
             bbStartPC, bbEndPC);
@@ -11788,7 +11789,7 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
                   predPcPtr[0], predPcPtr[(predSize-1)]);
 #endif
         sprintf(predStartPCstr, "%x", predPcPtr[0]);
-        sprintf(predEndPCstr, "0x%x", predPcPtr[(predSize-1)]);
+        sprintf(predEndPCstr, "%x", predPcPtr[(predSize-1)]);
 
         //create file name separately
         strcat(issStimName, predStartPCstr);
@@ -11806,23 +11807,24 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     FILE *fPtr = fopen(issStimPath, "w");
     //if has predecessor, insert its opcodes
     if (hasPred && predSize > 0) {
-        fprintf(fPtr, "%s%s\n\n", issInputRegPrefix, predStartPCstr);
-        fprintf(fPtr, "%s%s\n\n", issInputPEAprefix, predEndPCstr);
-        fprintf(fPtr, "%s%s\n\n", issInputCRAprefix, bbStartPCstr);
+        fprintf(fPtr, "%10s%s\n", issInputPreStart, predStartPCstr);
+        fprintf(fPtr, "%10s%s\n\n", issInputPreEnd, predEndPCstr);
+        fprintf(fPtr, "%10s%s\n", issInputStart, bbStartPCstr);
+        fprintf(fPtr, "%10s%s\n\n", issInputEnd, bbEndPCstr);
 
         for(i = 0; i < predSize; ++i) {
-            fprintf(fPtr, "%s%x%s%x\n", issInputMem1, predPcPtr[i]
+            fprintf(fPtr, "%s%x%s%08x\n", issInputMem1, predPcPtr[i]
                     , issInputMem2, predOpcPtr[i]);
         }
-
         fprintf(fPtr, "\n");
     } else {
-        fprintf(fPtr, "%s%s\n\n", issInputRegPrefix, bbStartPCstr);
+        fprintf(fPtr, "%s%s\n\n", issInputStart, bbStartPCstr);
+        fprintf(fPtr, "%s%s\n\n", issInputEnd, bbEndPCstr);
     }
 
     //insert bb opcodes
     for (i = 0; i < tbSize; ++i) {
-        fprintf(fPtr, "%s%x%s%x\n", issInputMem1, bbPcPtr[i],
+        fprintf(fPtr, "%s%x%s%08x\n", issInputMem1, bbPcPtr[i],
                                     issInputMem2, bbOpcPtr[i]);
     }
 
@@ -11892,6 +11894,7 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     if (tbID_valid == 1) {
         predNum = TB_record[tbID].predCount;
         (TB_record[tbID].tbMetrics[predNum]).predID = tb_IDtracker;
+        TB_record[tbID].tbMetrics[predNum].latency = 1;
         /*
         result = fscanf(FHANDLE,"%d",
                   &(TB_record[tbID].tbMetrics[predNum]).latency );
@@ -11899,6 +11902,7 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     } else {
         predNum = TB_record[tb_id].predCount;
         (TB_record[tb_id].tbMetrics[predNum]).predID = tb_IDtracker;
+        TB_record[tb_id].tbMetrics[predNum].latency = 1;
         /*
         result = fscanf(FHANDLE,"%d",
                   &(TB_record[tb_id].tbMetrics[predNum]).latency );

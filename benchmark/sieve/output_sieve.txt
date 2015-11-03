@@ -1,4 +1,183 @@
-2
+
+Total dynamic instruction latencies are 109
+
+Total dynamic instruction latencies are 155
+
+Total dynamic instruction latencies are 164
+
+Total dynamic instruction latencies are 178
+
+Total dynamic instruction latencies are 207
+
+Total dynamic instruction latencies are 248
+
+Total dynamic instruction latencies are 251
+
+Total dynamic instruction latencies are 385
+
+Total dynamic instruction latencies are 388
+
+Total dynamic instruction latencies are 562
+
+Total dynamic instruction latencies are 583
+
+Total dynamic instruction latencies are 600
+
+Total dynamic instruction latencies are 898
+
+Total dynamic instruction latencies are 901
+
+Total dynamic instruction latencies are 914
+
+Total dynamic instruction latencies are 917
+
+Total dynamic instruction latencies are 946
+
+Total dynamic instruction latencies are 964
+
+Total dynamic instruction latencies are 967
+
+Total dynamic instruction latencies are 996
+
+Total dynamic instruction latencies are 1007
+
+Total dynamic instruction latencies are 1010
+
+Total dynamic instruction latencies are 1033
+
+Total dynamic instruction latencies are 1806
+
+Total dynamic instruction latencies are 1813
+
+Total dynamic instruction latencies are 1821
+
+Total dynamic instruction latencies are 1827
+
+Total dynamic instruction latencies are 1858
+
+Total dynamic instruction latencies are 2303
+
+Total dynamic instruction latencies are 2316
+
+Total dynamic instruction latencies are 2319
+
+Total dynamic instruction latencies are 2375
+
+Total dynamic instruction latencies are 2384
+
+Total dynamic instruction latencies are 2454
+
+Total dynamic instruction latencies are 2466
+
+Total dynamic instruction latencies are 2480
+
+Total dynamic instruction latencies are 2483
+
+Total dynamic instruction latencies are 2567
+
+Total dynamic instruction latencies are 2579
+
+Total dynamic instruction latencies are 2593
+
+Total dynamic instruction latencies are 2596
+
+Total dynamic instruction latencies are 2680
+
+Total dynamic instruction latencies are 2692
+
+Total dynamic instruction latencies are 2706
+
+Total dynamic instruction latencies are 2709
+
+Total dynamic instruction latencies are 2793
+
+Total dynamic instruction latencies are 2805
+
+Total dynamic instruction latencies are 2819
+
+Total dynamic instruction latencies are 2822
+
+Total dynamic instruction latencies are 2907
+
+Total dynamic instruction latencies are 2919
+
+Total dynamic instruction latencies are 2933
+
+Total dynamic instruction latencies are 2936
+
+Total dynamic instruction latencies are 3021
+
+Total dynamic instruction latencies are 3033
+
+Total dynamic instruction latencies are 3047
+
+Total dynamic instruction latencies are 3050
+
+Total dynamic instruction latencies are 3135
+
+Total dynamic instruction latencies are 3147
+
+Total dynamic instruction latencies are 3161
+
+Total dynamic instruction latencies are 3164
+
+Total dynamic instruction latencies are 3249
+
+Total dynamic instruction latencies are 3261
+
+Total dynamic instruction latencies are 3275
+
+Total dynamic instruction latencies are 3278
+
+Total dynamic instruction latencies are 3363
+
+Total dynamic instruction latencies are 3375
+
+Total dynamic instruction latencies are 3389
+
+Total dynamic instruction latencies are 3392
+
+Total dynamic instruction latencies are 3477
+
+Total dynamic instruction latencies are 3489
+
+Total dynamic instruction latencies are 3503
+
+Total dynamic instruction latencies are 3506
+
+Total dynamic instruction latencies are 3591
+
+Total dynamic instruction latencies are 3603
+
+Total dynamic instruction latencies are 3617
+
+Total dynamic instruction latencies are 3620
+
+Total dynamic instruction latencies are 3705
+
+Total dynamic instruction latencies are 3717
+
+Total dynamic instruction latencies are 3731
+
+Total dynamic instruction latencies are 3734
+
+Total dynamic instruction latencies are 3819
+
+Total dynamic instruction latencies are 3831
+
+Total dynamic instruction latencies are 3845
+
+Total dynamic instruction latencies are 3848
+
+Total dynamic instruction latencies are 3933
+
+Total dynamic instruction latencies are 3945
+
+Total dynamic instruction latencies are 3959
+
+Total dynamic instruction latencies are 3962
+
+Total dynamic instruc2
 3
 5
 7
