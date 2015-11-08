@@ -39,6 +39,9 @@
 
 /* Modified */
 #include "back-annotation/my_defines.h" //max instts per TB etc
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 /* End Modified */
 
 #define ENABLE_ARCH_4T    arm_dc_feature(s, ARM_FEATURE_V4T)
@@ -11769,8 +11772,8 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     char extnStr[] = ".dat";
     char issStimName[100] = "dat_";
     char tbMetricFname[100];
-    static int tbNum = 0;
-    // char tbNumstr[10];
+    static int breakNum = 2;
+    // char breakNumstr[10];
     // unsigned int i;
 
     /*===================  creating ISS input file name ===================*/
@@ -11835,7 +11838,10 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     */
 
     /*================  init, exec DAT on ISS, analyse trace  ================*/
-
+    (void) gfatherPCstr;
+    (void) ggfatherPCstr;
+    (void) brkCntstr;
+    /*
     sprintf(gfatherPCstr, "%x", pred_pctracker);
     sprintf(ggfatherPCstr, "%x", gfather_pctracker);
     sprintf(brkCntstr, "%d", brkCnt);
@@ -11843,10 +11849,9 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     char callIssCmd[500] = "";
 
     // We don't need gfather and ggfather for gem5
-    sprintf(callIssCmd, "python ~/qemu/benchmark/scripts/main.py -n %s -s %s -e %s -p %s -P %s -t %d", issStimName, bbStartPCstr, bbEndPCstr, predStartPCstr, predEndPCstr, tbNum+2);
-    ++tbNum;
+    sprintf(callIssCmd, "python ~/qemu/benchmark/scripts/main.py -n %s -s %s -e %s -p %s -P %s -t %d", issStimName, bbStartPCstr, bbEndPCstr, predStartPCstr, predEndPCstr, breakNum+2);
+    ++breakNum;
 
-    /*
     strcat(callIssCmd, issStimName);
     strcat(callIssCmd, " -s ");
     strcat(callIssCmd, bbStartPCstr);
@@ -11855,10 +11860,10 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     strcat(callIssCmd, " -p ");
     strcat(callIssCmd, predEndPCstr);
     strcat(callIssCmd, " -g ");
-    sprintf(tbNumstr, "%d", tbNum+2);
-    ++tbNum;
+    sprintf(breakNumstr, "%d", breakNum+2);
+    ++breakNum;
     strcat(callIssCmd, " -t ");
-    strcat(callIssCmd, tbNumstr);
+    strcat(callIssCmd, breakNumstr);
     strcat(callIssCmd, gfatherPCstr);
     strcat(callIssCmd, " -G ");
     strcat(callIssCmd, ggfatherPCstr);
@@ -11868,7 +11873,7 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     strcat(callIssCmd, "\n\n");
     fputs(callIssCmd, stderr);
     */
-    system(callIssCmd);
+    // system(callIssCmd);
 
     /*==============  init, exec DAT on ISS, analyse trace  END =============*/
 
@@ -11902,9 +11907,29 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     /*
     char tbMetricPath[100] = "/tmp/time.dat";
     */
+    char pipe_name[100] = "/tmp/pipe";
+    char issRunCmd[500] = "";
     char tbMetricPath[100] = "";
     sprintf(tbMetricPath, "/home/rexjia/qemu/temp/tb_metrics/%s_%s.dat", predStartPCstr, bbStartPCstr);
 
+    // Construct command
+    if (hasPred && predSize > 0) {
+        sprintf(issRunCmd, "set thePCState->_npc = %s\nb if thePCState->_pc == %s\nc\nd %d\ncall dumpTiming(\"%s\")\nset startTick = currTick\n", bbStartPCstr, bbEndPCstr, breakNum, tbMetricPath);
+    } else {
+        sprintf(issRunCmd, "b if thePCState->_pc == %s\nc\nd %d\ncall dumpTiming(\"%s\")\nset startTick = currTick\n", bbEndPCstr, breakNum, tbMetricPath);
+    }
+    ++breakNum;
+    
+    // Send commands through fifo
+    fputs(issRunCmd, stderr);
+    (void) pipe_name;
+    /*
+    int pipeout = open(pipe_name, O_WRONLY);
+    write(pipeout, issRunCmd, 500);
+    close(pipeout);
+    */
+
+    // Read metric from file
     int result;
     uint32_t predNum;
     fPtr = fopen(tbMetricPath, "r");
@@ -11913,6 +11938,7 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     }
 
     // get latency from metric files
+    // increment predecessor count
     if (tbID_valid == 1) {
         predNum = TB_record[tbID].predCount++;
         (TB_record[tbID].tbMetrics[predNum]).predID = tb_IDtracker;
