@@ -15,7 +15,7 @@ extern void cz_unseenPair(uint32_t tbID);
 //predecesssor
 typedef struct TBCz {
   uint32_t predID;//predecessor ID
-  uint32_t latency;
+  uint64_t latency;
   //uint32_t energy;
 } TBCz;
 

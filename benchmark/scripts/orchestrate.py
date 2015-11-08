@@ -1,5 +1,3 @@
-#5 Dec 2012 - Collecting all ISS related functions in one python top module
-
 import re
 import string
 import sys
@@ -13,7 +11,7 @@ import cmd
 ##################################################################################
 #Func Name - orchestrate 
 #Purpose - characterise a given basic block by executing it on the ISS
-#Inputs  - Assumes uninited DAT input file already exists
+#Inputs  - Assumes uninitialized DAT input file already exists
 #Output - 
 ##################################################################################
 def orchestrate(issStimNamestr, bbStartPCstr, bbEndPCstr, predEndPCstr, \

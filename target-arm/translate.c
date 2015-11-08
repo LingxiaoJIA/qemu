@@ -11458,7 +11458,7 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
         TB_targetCode[tb_id].tbSize = tbSize;
         TB_targetCode[tb_id].startPC = TB_targetCode[tb_id].myPCs[0];
         TB_targetCode[tb_id].endPC = TB_targetCode[tb_id].myPCs[tbSize-1];
-        fprintf(stderr, "gen_intermediate_code: Block %d size is %2d, startPC = 0x%x, endPC = 0x%x\n", tb_id, tbSize, TB_targetCode[tb_id].startPC, TB_targetCode[tb_id].endPC);
+        // fprintf(stderr, "gen_intermediate_code: Block %d size is %2d, startPC = 0x%x, endPC = 0x%x\n", tb_id, tbSize, TB_targetCode[tb_id].startPC, TB_targetCode[tb_id].endPC);
 
     /* printf("\nDebugging TB_targetCode buffer. tb_id is %u", tb_id);
     printf(", tb_IDtracker is %u\n", tb_IDtracker);
@@ -11744,13 +11744,15 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
 
     //NOTE!!! - bounds checking TBD  -  VERY IMPORTANT!!!!!
 
-    char issInputPreStart[] = "PreStart PC = 0x";
-    char issInputPreEnd[] = "PreEnd   PC = 0x";
-    char issInputStart[] = "Start    PC = 0x";
-    char issInputEnd[] = "End      PC = 0x";
+    /*
+    char issInputPreStart[] = "PreStart PC = ";
+    char issInputPreEnd[] = "PreEnd   PC = ";
+    char issInputStart[] = "Start    PC = ";
+    char issInputEnd[] = "End      PC = ";
+    */
     //assuming PC is 32 bit and so can have 8 0s as prefix
-    char issInputMem1[] = "        Mem = 0x00000000";
-    char issInputMem2[] = " d=0x";
+    // char issInputMem1[] = "        Mem = 0x00000000";
+    // char issInputMem2[] = " d=0x";
     uint8_t brkCnt = 1; //number of times end address will be encountered
                       //encountered before BB pair's ISS execution is stopped
 
@@ -11765,13 +11767,15 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     char brkCntstr[5];
     char issStimPath[500] = "/home/rexjia/qemu/temp/in_dats/";
     char extnStr[] = ".dat";
-    char issStimName[100] = "dat_0x";
+    char issStimName[100] = "dat_";
     char tbMetricFname[100];
-    unsigned int i;
+    static int tbNum = 0;
+    // char tbNumstr[10];
+    // unsigned int i;
 
     /*===================  creating ISS input file name ===================*/
-    sprintf(bbStartPCstr, "%x", bbStartPC);
-    sprintf(bbEndPCstr, "%x", bbEndPC);
+    sprintf(bbStartPCstr, "0x%x", bbStartPC);
+    sprintf(bbEndPCstr, "0x%x", bbEndPC);
 #if BA_DEBUG
     printf("\n        characterize_TB: Debugging in characterize_tb.\n        characterize_TB: BB start PC is %x end PC is %x\n",
             bbStartPC, bbEndPC);
@@ -11788,12 +11792,12 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
         printf("        characterize_TB: Pred start PC is %x end PC is %x\n",
                   predPcPtr[0], predPcPtr[(predSize-1)]);
 #endif
-        sprintf(predStartPCstr, "%x", predPcPtr[0]);
-        sprintf(predEndPCstr, "%x", predPcPtr[(predSize-1)]);
+        sprintf(predStartPCstr, "0x%x", predPcPtr[0]);
+        sprintf(predEndPCstr, "0x%x", predPcPtr[(predSize-1)]);
 
         //create file name separately
         strcat(issStimName, predStartPCstr);
-        strcat(issStimName, "_0x");
+        strcat(issStimName, "_");
     }
 
     strcat(issStimName, bbStartPCstr);
@@ -11804,62 +11808,67 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     //input ISS stim with full path
     strcat(issStimPath, issStimName);
 
-    FILE *fPtr = fopen(issStimPath, "w");
+    FILE *fPtr;
+    /*
+    fPtr = fopen(issStimPath, "w");
     //if has predecessor, insert its opcodes
     if (hasPred && predSize > 0) {
         fprintf(fPtr, "%10s%s\n", issInputPreStart, predStartPCstr);
         fprintf(fPtr, "%10s%s\n\n", issInputPreEnd, predEndPCstr);
-        fprintf(fPtr, "%10s%s\n", issInputStart, bbStartPCstr);
-        fprintf(fPtr, "%10s%s\n\n", issInputEnd, bbEndPCstr);
+    }
+    fprintf(fPtr, "%10s%s\n", issInputStart, bbStartPCstr);
+    fprintf(fPtr, "%10s%s\n\n", issInputEnd, bbEndPCstr);
 
+    //insert bb opcodes
+    if (hasPred && predSize > 0) {
         for(i = 0; i < predSize; ++i) {
             fprintf(fPtr, "%s%x%s%08x\n", issInputMem1, predPcPtr[i]
                     , issInputMem2, predOpcPtr[i]);
         }
         fprintf(fPtr, "\n");
-    } else {
-        fprintf(fPtr, "%s%s\n\n", issInputStart, bbStartPCstr);
-        fprintf(fPtr, "%s%s\n\n", issInputEnd, bbEndPCstr);
     }
-
-    //insert bb opcodes
     for (i = 0; i < tbSize; ++i) {
-        fprintf(fPtr, "%s%x%s%08x\n", issInputMem1, bbPcPtr[i],
-                                    issInputMem2, bbOpcPtr[i]);
+        fprintf(fPtr, "%s%x%s%08x\n", issInputMem1, bbPcPtr[i], issInputMem2, bbOpcPtr[i]);
     }
 
     fclose(fPtr);
-
-    (void) gfatherPCstr;
-    (void) ggfatherPCstr;
-    (void) brkCntstr;
+    */
 
     /*================  init, exec DAT on ISS, analyse trace  ================*/
 
-    /*
     sprintf(gfatherPCstr, "%x", pred_pctracker);
     sprintf(ggfatherPCstr, "%x", gfather_pctracker);
     sprintf(brkCntstr, "%d", brkCnt);
-    char bbStartPCstrPy[50] = "0x";
-    strcat(bbStartPCstrPy, bbStartPCstr);
 
-    char orchestrate_cmd[500] = "python /scratch/suhdarshan/suhas-qemu-1.2.0/suhas/scripts/orchestrate.py -n ";
-    strcat(orchestrate_cmd, issStimName);
-    strcat(orchestrate_cmd, " -s ");
-    strcat(orchestrate_cmd, bbStartPCstrPy);
-    strcat(orchestrate_cmd, " -e ");
-    strcat(orchestrate_cmd, bbEndPCstr);
-    strcat(orchestrate_cmd, " -p ");
-    strcat(orchestrate_cmd, predEndPCstr);
-    strcat(orchestrate_cmd, " -g ");
-    strcat(orchestrate_cmd, gfatherPCstr);
-    strcat(orchestrate_cmd, " -G ");
-    strcat(orchestrate_cmd, ggfatherPCstr);
-    strcat(orchestrate_cmd, " -b ");
-    strcat(orchestrate_cmd, brkCntstr);
+    char callIssCmd[500] = "";
 
-    system(orchestrate_cmd);
+    // We don't need gfather and ggfather for gem5
+    sprintf(callIssCmd, "python ~/qemu/benchmark/scripts/main.py -n %s -s %s -e %s -p %s -P %s -t %d", issStimName, bbStartPCstr, bbEndPCstr, predStartPCstr, predEndPCstr, tbNum+2);
+    ++tbNum;
+
+    /*
+    strcat(callIssCmd, issStimName);
+    strcat(callIssCmd, " -s ");
+    strcat(callIssCmd, bbStartPCstr);
+    strcat(callIssCmd, " -e ");
+    strcat(callIssCmd, bbEndPCstr);
+    strcat(callIssCmd, " -p ");
+    strcat(callIssCmd, predEndPCstr);
+    strcat(callIssCmd, " -g ");
+    sprintf(tbNumstr, "%d", tbNum+2);
+    ++tbNum;
+    strcat(callIssCmd, " -t ");
+    strcat(callIssCmd, tbNumstr);
+    strcat(callIssCmd, gfatherPCstr);
+    strcat(callIssCmd, " -G ");
+    strcat(callIssCmd, ggfatherPCstr);
+    strcat(callIssCmd, " -b ");
+    strcat(callIssCmd, brkCntstr);
+
+    strcat(callIssCmd, "\n\n");
+    fputs(callIssCmd, stderr);
     */
+    system(callIssCmd);
 
     /*==============  init, exec DAT on ISS, analyse trace  END =============*/
 
@@ -11874,7 +11883,6 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     strcat (tbMetricPath, tbMetricFname);
     FILE *FHANDLE  = fopen(tbMetricPath, "r");
     */
-    uint32_t predNum;
 
     //read and store cz. result in global array of TB metrics
     //indexed by tb_id - 1 as tb_id has already been
@@ -11891,37 +11899,51 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     //  result = fscanf(FHANDLE,"%d",
     //            &(TB_record[tb_id].tbMetrics[predNum]).latency );
 
+    /*
+    char tbMetricPath[100] = "/tmp/time.dat";
+    */
+    char tbMetricPath[100] = "";
+    sprintf(tbMetricPath, "/home/rexjia/qemu/temp/tb_metrics/%s_%s.dat", predStartPCstr, bbStartPCstr);
+
+    int result;
+    uint32_t predNum;
+    fPtr = fopen(tbMetricPath, "r");
+    if (fPtr == NULL) {
+        fPtr = fopen("/tmp/time.dat", "r");
+    }
+
+    // get latency from metric files
     if (tbID_valid == 1) {
-        predNum = TB_record[tbID].predCount;
+        predNum = TB_record[tbID].predCount++;
         (TB_record[tbID].tbMetrics[predNum]).predID = tb_IDtracker;
-        TB_record[tbID].tbMetrics[predNum].latency = 1;
+        result = fscanf(fPtr,"%ld", &(TB_record[tbID].tbMetrics[predNum].latency) );
         /*
+        TB_record[tbID].tbMetrics[predNum].latency = 1;
         result = fscanf(FHANDLE,"%d",
                   &(TB_record[tbID].tbMetrics[predNum]).latency );
                   */
     } else {
-        predNum = TB_record[tb_id].predCount;
+        predNum = TB_record[tb_id].predCount++;
         (TB_record[tb_id].tbMetrics[predNum]).predID = tb_IDtracker;
-        TB_record[tb_id].tbMetrics[predNum].latency = 1;
+        result = fscanf(fPtr,"%ld", &(TB_record[tb_id].tbMetrics[predNum].latency) );
         /*
+        TB_record[tb_id].tbMetrics[predNum].latency = 1;
         result = fscanf(FHANDLE,"%d",
                   &(TB_record[tb_id].tbMetrics[predNum]).latency );
                   */
     }
-    /*
     if (result <= 0)
-        printf("ERROR OCCURRED in characterize\n");
-        */
+        fputs("ERROR OCCURRED in characterize\n", stderr);
 
     // increment predecessor count
+    /*
     if (tbID_valid == 1) {
         TB_record[tbID].predCount++;
     } else {
         TB_record[tb_id].predCount++;
     }
-
-    /*
-    fclose(FHANDLE);
     */
+
+    fclose(fPtr);
 }
 /* End Modified */
