@@ -14,7 +14,7 @@ int main(int argc, char **argv)
     if (argc < 2) {
 	fin = stdin;
 	sha_stream(&sha_info, fin);
-	sha_print(&sha_info);
+	//sha_print(&sha_info);
     } else {
 	while (--argc) {
 	    fin = fopen(*(++argv), "rb");

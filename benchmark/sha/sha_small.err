@@ -1,0 +1,891 @@
+b if thePCState->_pc == 0x10814
+c
+d 2
+set startTick = currTick
+b if thePCState->_pc == 0x10824
+c
+d 3
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0_0x10814.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10890
+b if thePCState->_pc == 0x1089c
+c
+d 4
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10814_0x10890.dat")
+set startTick = currTick
+set thePCState->_npc = 0x11444
+b if thePCState->_pc == 0x114a8
+c
+d 5
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10890_0x11444.dat")
+set startTick = currTick
+set thePCState->_npc = 0x18614
+b if thePCState->_pc == 0x1861c
+c
+d 6
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x11444_0x18614.dat")
+set startTick = currTick
+set thePCState->_npc = 0x18620
+b if thePCState->_pc == 0x18638
+c
+d 7
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x18614_0x18620.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1863c
+b if thePCState->_pc == 0x1863c
+c
+d 8
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x18620_0x1863c.dat")
+set startTick = currTick
+set thePCState->_npc = 0x11fc0
+b if thePCState->_pc == 0x11fc4
+c
+d 9
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1863c_0x11fc0.dat")
+set startTick = currTick
+set thePCState->_npc = 0x108b0
+b if thePCState->_pc == 0x108d8
+c
+d 10
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x11fc0_0x108b0.dat")
+set startTick = currTick
+set thePCState->_npc = 0x18640
+b if thePCState->_pc == 0x18650
+c
+d 11
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x11fc0_0x18640.dat")
+set startTick = currTick
+set thePCState->_npc = 0x18654
+b if thePCState->_pc == 0x18664
+c
+d 12
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x18640_0x18654.dat")
+set startTick = currTick
+set thePCState->_npc = 0x18668
+b if thePCState->_pc == 0x18674
+c
+d 13
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x18654_0x18668.dat")
+set startTick = currTick
+set thePCState->_npc = 0x108b0
+b if thePCState->_pc == 0x108d8
+c
+d 14
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x18668_0x108b0.dat")
+set startTick = currTick
+set thePCState->_npc = 0x18678
+b if thePCState->_pc == 0x18678
+c
+d 15
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x18668_0x18678.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1867c
+b if thePCState->_pc == 0x18684
+c
+d 16
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x18678_0x1867c.dat")
+set startTick = currTick
+set thePCState->_npc = 0x18688
+b if thePCState->_pc == 0x186ac
+c
+d 17
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1867c_0x18688.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1d638
+b if thePCState->_pc == 0x1d640
+c
+d 18
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x18688_0x1d638.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b794
+b if thePCState->_pc == 0x1b7ac
+c
+d 19
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1d638_0x1b794.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b928
+b if thePCState->_pc == 0x1b930
+c
+d 20
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b794_0x1b928.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b944
+b if thePCState->_pc == 0x1b948
+c
+d 21
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b928_0x1b944.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1d4e4
+b if thePCState->_pc == 0x1d4ec
+c
+d 22
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b944_0x1d4e4.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1d4f0
+b if thePCState->_pc == 0x1d500
+c
+d 23
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1d4e4_0x1d4f0.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1d510
+b if thePCState->_pc == 0x1d51c
+c
+d 24
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1d4f0_0x1d510.dat")
+set startTick = currTick
+set thePCState->_npc = 0x492a4
+b if thePCState->_pc == 0x492b8
+c
+d 25
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1d510_0x492a4.dat")
+set startTick = currTick
+set thePCState->_npc = 0x492bc
+b if thePCState->_pc == 0x492c8
+c
+d 26
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x492a4_0x492bc.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b5dc
+b if thePCState->_pc == 0x1b5e8
+c
+d 27
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x492bc_0x1b5dc.dat")
+set startTick = currTick
+set thePCState->_npc = 0x283e8
+b if thePCState->_pc == 0x283f8
+c
+d 28
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b5dc_0x283e8.dat")
+set startTick = currTick
+set thePCState->_npc = 0x283fc
+b if thePCState->_pc == 0x28404
+c
+d 29
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x283e8_0x283fc.dat")
+set startTick = currTick
+set thePCState->_npc = 0x28408
+b if thePCState->_pc == 0x2840c
+c
+d 30
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x283fc_0x28408.dat")
+set startTick = currTick
+set thePCState->_npc = 0x492cc
+b if thePCState->_pc == 0x492d0
+c
+d 31
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x28408_0x492cc.dat")
+set startTick = currTick
+set thePCState->_npc = 0x492d4
+b if thePCState->_pc == 0x492e0
+c
+d 32
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x492cc_0x492d4.dat")
+set startTick = currTick
+set thePCState->_npc = 0x492e4
+b if thePCState->_pc == 0x492ec
+c
+d 33
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x492d4_0x492e4.dat")
+set startTick = currTick
+set thePCState->_npc = 0x492f0
+b if thePCState->_pc == 0x49300
+c
+d 34
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x492e4_0x492f0.dat")
+set startTick = currTick
+set thePCState->_npc = 0x4930c
+b if thePCState->_pc == 0x49324
+c
+d 35
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x492f0_0x4930c.dat")
+set startTick = currTick
+set thePCState->_npc = 0x290a0
+b if thePCState->_pc == 0x290b4
+c
+d 36
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x4930c_0x290a0.dat")
+set startTick = currTick
+set thePCState->_npc = 0x290b8
+b if thePCState->_pc == 0x290c4
+c
+d 37
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x290a0_0x290b8.dat")
+set startTick = currTick
+set thePCState->_npc = 0x290c8
+b if thePCState->_pc == 0x290d8
+c
+d 38
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x290b8_0x290c8.dat")
+set startTick = currTick
+set thePCState->_npc = 0x49328
+b if thePCState->_pc == 0x4932c
+c
+d 39
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x290c8_0x49328.dat")
+set startTick = currTick
+set thePCState->_npc = 0x49330
+b if thePCState->_pc == 0x49340
+c
+d 40
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x49328_0x49330.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1d474
+b if thePCState->_pc == 0x1d494
+c
+d 41
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x49330_0x1d474.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1d4a0
+b if thePCState->_pc == 0x1d4b8
+c
+d 42
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1d474_0x1d4a0.dat")
+set startTick = currTick
+set thePCState->_npc = 0x49344
+b if thePCState->_pc == 0x4934c
+c
+d 43
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1d4a0_0x49344.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1d520
+b if thePCState->_pc == 0x1d524
+c
+d 44
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x49344_0x1d520.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b94c
+b if thePCState->_pc == 0x1b94c
+c
+d 45
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1d520_0x1b94c.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b7b0
+b if thePCState->_pc == 0x1b7c0
+c
+d 46
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b94c_0x1b7b0.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b7c4
+b if thePCState->_pc == 0x1b7d0
+c
+d 47
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b7b0_0x1b7c4.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b7d4
+b if thePCState->_pc == 0x1b7d8
+c
+d 48
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b7c4_0x1b7d4.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b7dc
+b if thePCState->_pc == 0x1b7e4
+c
+d 49
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b7d4_0x1b7dc.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b7e8
+b if thePCState->_pc == 0x1b7f0
+c
+d 50
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b7dc_0x1b7e8.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b7f4
+b if thePCState->_pc == 0x1b800
+c
+d 51
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b7e8_0x1b7f4.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b804
+b if thePCState->_pc == 0x1b820
+c
+d 52
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b7f4_0x1b804.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b824
+b if thePCState->_pc == 0x1b828
+c
+d 53
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b804_0x1b824.dat")
+set startTick = currTick
+set thePCState->_npc = 0x7015c
+b if thePCState->_pc == 0x70160
+c
+d 54
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b824_0x7015c.dat")
+set startTick = currTick
+set thePCState->_npc = 0x70164
+b if thePCState->_pc == 0x70168
+c
+d 55
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x7015c_0x70164.dat")
+set startTick = currTick
+set thePCState->_npc = 0x6ff70
+b if thePCState->_pc == 0x6ff74
+c
+d 56
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x70164_0x6ff70.dat")
+set startTick = currTick
+set thePCState->_npc = 0x70140
+b if thePCState->_pc == 0x7014c
+c
+d 57
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x6ff84_0x70140.dat")
+set startTick = currTick
+set thePCState->_npc = 0x7016c
+b if thePCState->_pc == 0x70178
+c
+d 58
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x70140_0x7016c.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b82c
+b if thePCState->_pc == 0x1b840
+c
+d 59
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x7016c_0x1b82c.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1bafc
+b if thePCState->_pc == 0x1bb08
+c
+d 60
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b82c_0x1bafc.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1bb0c
+b if thePCState->_pc == 0x1bb0c
+c
+d 61
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1bafc_0x1bb0c.dat")
+set startTick = currTick
+set thePCState->_npc = 0x284f0
+b if thePCState->_pc == 0x28500
+c
+d 62
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1bb0c_0x284f0.dat")
+set startTick = currTick
+set thePCState->_npc = 0x28504
+b if thePCState->_pc == 0x28508
+c
+d 63
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x284f0_0x28504.dat")
+set startTick = currTick
+set thePCState->_npc = 0x2850c
+b if thePCState->_pc == 0x28514
+c
+d 64
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x28504_0x2850c.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b844
+b if thePCState->_pc == 0x1b848
+c
+d 65
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x2850c_0x1b844.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b84c
+b if thePCState->_pc == 0x1b864
+c
+d 66
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b844_0x1b84c.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b878
+b if thePCState->_pc == 0x1b87c
+c
+d 67
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b84c_0x1b878.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b880
+b if thePCState->_pc == 0x1b888
+c
+d 68
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b878_0x1b880.dat")
+set startTick = currTick
+set thePCState->_npc = 0x186b0
+b if thePCState->_pc == 0x186bc
+c
+d 69
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b880_0x186b0.dat")
+set startTick = currTick
+set thePCState->_npc = 0x186c0
+b if thePCState->_pc == 0x186d4
+c
+d 70
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x186b0_0x186c0.dat")
+set startTick = currTick
+set thePCState->_npc = 0x186d8
+b if thePCState->_pc == 0x186f4
+c
+d 71
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x186c0_0x186d8.dat")
+set startTick = currTick
+set thePCState->_npc = 0x186f8
+b if thePCState->_pc == 0x18704
+c
+d 72
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x186d8_0x186f8.dat")
+set startTick = currTick
+set thePCState->_npc = 0x108b0
+b if thePCState->_pc == 0x108d8
+c
+d 73
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x186f8_0x108b0.dat")
+set startTick = currTick
+set thePCState->_npc = 0x18708
+b if thePCState->_pc == 0x18708
+c
+d 74
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x186f8_0x18708.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1870c
+b if thePCState->_pc == 0x18714
+c
+d 75
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x18708_0x1870c.dat")
+set startTick = currTick
+set thePCState->_npc = 0x18718
+b if thePCState->_pc == 0x1871c
+c
+d 76
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1870c_0x18718.dat")
+set startTick = currTick
+set thePCState->_npc = 0x18720
+b if thePCState->_pc == 0x18724
+c
+d 77
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x18718_0x18720.dat")
+set startTick = currTick
+set thePCState->_npc = 0x18740
+b if thePCState->_pc == 0x18744
+c
+d 78
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x18720_0x18740.dat")
+set startTick = currTick
+set thePCState->_npc = 0x114ac
+b if thePCState->_pc == 0x114b4
+c
+d 79
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x18740_0x114ac.dat")
+set startTick = currTick
+set thePCState->_npc = 0x114b8
+b if thePCState->_pc == 0x114e0
+c
+d 80
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x114ac_0x114b8.dat")
+set startTick = currTick
+set thePCState->_npc = 0x114e4
+b if thePCState->_pc == 0x1150c
+c
+d 81
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x114b8_0x114e4.dat")
+set startTick = currTick
+set thePCState->_npc = 0x27190
+b if thePCState->_pc == 0x27198
+c
+d 82
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x114e4_0x27190.dat")
+set startTick = currTick
+set thePCState->_npc = 0x271b8
+b if thePCState->_pc == 0x271c4
+c
+d 83
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x271ac_0x271b8.dat")
+set startTick = currTick
+set thePCState->_npc = 0x271b8
+b if thePCState->_pc == 0x271c4
+c
+d 84
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x271b8_0x271b8.dat")
+set startTick = currTick
+set thePCState->_npc = 0x271c8
+b if thePCState->_pc == 0x271d0
+c
+d 85
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x271b8_0x271c8.dat")
+set startTick = currTick
+set thePCState->_npc = 0x271d4
+b if thePCState->_pc == 0x271d4
+c
+d 86
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x271c8_0x271d4.dat")
+set startTick = currTick
+set thePCState->_npc = 0x27220
+b if thePCState->_pc == 0x27240
+c
+d 87
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x271d4_0x27220.dat")
+set startTick = currTick
+set thePCState->_npc = 0x11510
+b if thePCState->_pc == 0x11634
+c
+d 88
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x27220_0x11510.dat")
+set startTick = currTick
+set thePCState->_npc = 0x11638
+b if thePCState->_pc == 0x11718
+c
+d 89
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x11510_0x11638.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10a24
+b if thePCState->_pc == 0x10b0c
+c
+d 90
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x11638_0x10a24.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10ab4
+b if thePCState->_pc == 0x10b0c
+c
+d 91
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10a24_0x10ab4.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10ab4
+b if thePCState->_pc == 0x10b0c
+c
+d 92
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10ab4_0x10ab4.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10b10
+b if thePCState->_pc == 0x10b38
+c
+d 93
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10ab4_0x10b10.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10b3c
+b if thePCState->_pc == 0x10b78
+c
+d 94
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10b10_0x10b3c.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10b88
+b if thePCState->_pc == 0x10bbc
+c
+d 95
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10b3c_0x10b88.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10b7c
+b if thePCState->_pc == 0x10bbc
+c
+d 96
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10b88_0x10b7c.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10b7c
+b if thePCState->_pc == 0x10bbc
+c
+d 97
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10b7c_0x10b7c.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10bc0
+b if thePCState->_pc == 0x10bd4
+c
+d 98
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10b7c_0x10bc0.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10be4
+b if thePCState->_pc == 0x10c14
+c
+d 99
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10bc0_0x10be4.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10bd8
+b if thePCState->_pc == 0x10c14
+c
+d 100
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10be4_0x10bd8.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10bd8
+b if thePCState->_pc == 0x10c14
+c
+d 101
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10bd8_0x10bd8.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10c18
+b if thePCState->_pc == 0x10c2c
+c
+d 102
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10bd8_0x10c18.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10c3c
+b if thePCState->_pc == 0x10c74
+c
+d 103
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10c18_0x10c3c.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10c30
+b if thePCState->_pc == 0x10c74
+c
+d 104
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10c3c_0x10c30.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10c30
+b if thePCState->_pc == 0x10c74
+c
+d 105
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10c30_0x10c30.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10c78
+b if thePCState->_pc == 0x10c80
+c
+d 106
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10c30_0x10c78.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10c90
+b if thePCState->_pc == 0x10cc0
+c
+d 107
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10c78_0x10c90.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10c84
+b if thePCState->_pc == 0x10cc0
+c
+d 108
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10c90_0x10c84.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10c84
+b if thePCState->_pc == 0x10cc0
+c
+d 109
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10c84_0x10c84.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10cc4
+b if thePCState->_pc == 0x10cfc
+c
+d 110
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10c84_0x10cc4.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1171c
+b if thePCState->_pc == 0x11720
+c
+d 111
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10cc4_0x1171c.dat")
+set startTick = currTick
+set thePCState->_npc = 0x11500
+b if thePCState->_pc == 0x1150c
+c
+d 112
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1171c_0x11500.dat")
+set startTick = currTick
+set thePCState->_npc = 0x27190
+b if thePCState->_pc == 0x27198
+c
+d 113
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x11500_0x27190.dat")
+set startTick = currTick
+set thePCState->_npc = 0x11724
+b if thePCState->_pc == 0x11730
+c
+d 114
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1171c_0x11724.dat")
+set startTick = currTick
+set thePCState->_npc = 0x27190
+b if thePCState->_pc == 0x27198
+c
+d 115
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x11724_0x27190.dat")
+set startTick = currTick
+set thePCState->_npc = 0x11734
+b if thePCState->_pc == 0x11734
+c
+d 116
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x27224_0x11734.dat")
+set startTick = currTick
+set thePCState->_npc = 0x11498
+b if thePCState->_pc == 0x114a8
+c
+d 117
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x11734_0x11498.dat")
+set startTick = currTick
+set thePCState->_npc = 0x18614
+b if thePCState->_pc == 0x1861c
+c
+d 118
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x11498_0x18614.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b7b0
+b if thePCState->_pc == 0x1b7c0
+c
+d 119
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b794_0x1b7b0.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b7c4
+b if thePCState->_pc == 0x1b7d0
+c
+d 120
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b878_0x1b7c4.dat")
+set startTick = currTick
+set thePCState->_npc = 0x1b910
+b if thePCState->_pc == 0x1b924
+c
+d 121
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b844_0x1b910.dat")
+set startTick = currTick
+set thePCState->_npc = 0x186b0
+b if thePCState->_pc == 0x186bc
+c
+d 122
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x1b910_0x186b0.dat")
+set startTick = currTick
+set thePCState->_npc = 0x18728
+b if thePCState->_pc == 0x18730
+c
+d 123
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x18720_0x18728.dat")
+set startTick = currTick
+set thePCState->_npc = 0x6ff70
+b if thePCState->_pc == 0x6ff74
+c
+d 124
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x18728_0x6ff70.dat")
+set startTick = currTick
+set thePCState->_npc = 0x18734
+b if thePCState->_pc == 0x18734
+c
+d 125
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x6ff70_0x18734.dat")
+set startTick = currTick
+set thePCState->_npc = 0x114ac
+b if thePCState->_pc == 0x114b4
+c
+d 126
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x18734_0x114ac.dat")
+set startTick = currTick
+set thePCState->_npc = 0x271e8
+b if thePCState->_pc == 0x271f8
+c
+d 127
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x271c8_0x271e8.dat")
+set startTick = currTick
+set thePCState->_npc = 0x27210
+b if thePCState->_pc == 0x27240
+c
+d 128
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x271e8_0x27210.dat")
+set startTick = currTick
+set thePCState->_npc = 0x11734
+b if thePCState->_pc == 0x11734
+c
+d 129
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x27210_0x11734.dat")
+set startTick = currTick
+set thePCState->_npc = 0x11738
+b if thePCState->_pc == 0x1173c
+c
+d 130
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x114ac_0x11738.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10ff8
+b if thePCState->_pc == 0x10ffc
+c
+d 131
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x11738_0x10ff8.dat")
+set startTick = currTick
+set thePCState->_npc = 0x11000
+b if thePCState->_pc == 0x11030
+c
+d 132
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10ff8_0x11000.dat")
+set startTick = currTick
+set thePCState->_npc = 0x11434
+b if thePCState->_pc == 0x1143c
+c
+d 133
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x11000_0x11434.dat")
+set startTick = currTick
+set thePCState->_npc = 0x27080
+b if thePCState->_pc == 0x27088
+c
+d 134
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x11434_0x27080.dat")
+set startTick = currTick
+set thePCState->_npc = 0x2708c
+b if thePCState->_pc == 0x27098
+c
+d 135
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x27080_0x2708c.dat")
+set startTick = currTick
+set thePCState->_npc = 0x2708c
+b if thePCState->_pc == 0x27098
+c
+d 136
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x2708c_0x2708c.dat")
+set startTick = currTick
+set thePCState->_npc = 0x2709c
+b if thePCState->_pc == 0x270cc
+c
+d 137
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x2708c_0x2709c.dat")
+set startTick = currTick
+set thePCState->_npc = 0x270ac
+b if thePCState->_pc == 0x270cc
+c
+d 138
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x2709c_0x270ac.dat")
+set startTick = currTick
+set thePCState->_npc = 0x270d0
+b if thePCState->_pc == 0x270f4
+c
+d 139
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x270ac_0x270d0.dat")
+set startTick = currTick
+set thePCState->_npc = 0x270d4
+b if thePCState->_pc == 0x270f4
+c
+d 140
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x270d0_0x270d4.dat")
+set startTick = currTick
+set thePCState->_npc = 0x270f8
+b if thePCState->_pc == 0x270f8
+c
+d 141
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x270d4_0x270f8.dat")
+set startTick = currTick
+set thePCState->_npc = 0x11440
+b if thePCState->_pc == 0x11440
+c
+d 142
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x270f8_0x11440.dat")
+set startTick = currTick
+set thePCState->_npc = 0x11258
+b if thePCState->_pc == 0x1137c
+c
+d 143
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x11440_0x11258.dat")
+set startTick = currTick
+set thePCState->_npc = 0x11380
+b if thePCState->_pc == 0x11430
+c
+d 144
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x11258_0x11380.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10a24
+b if thePCState->_pc == 0x10b0c
+c
+d 145
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x11380_0x10a24.dat")
+set startTick = currTick
+set thePCState->_npc = 0x11740
+b if thePCState->_pc == 0x11750
+c
+d 146
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10cc4_0x11740.dat")
+set startTick = currTick
+set thePCState->_npc = 0x11754
+b if thePCState->_pc == 0x1175c
+c
+d 147
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x11740_0x11754.dat")
+set startTick = currTick
+set thePCState->_npc = 0x108a0
+b if thePCState->_pc == 0x108a0
+c
+d 148
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x11754_0x108a0.dat")
+set startTick = currTick
+set thePCState->_npc = 0x10870
+b if thePCState->_pc == 0x10878
+c
+d 149
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x108a0_0x10870.dat")
+set startTick = currTick
+set thePCState->_npc = 0x11a54
+b if thePCState->_pc == 0x11a54
+c
+d 150
+call dumpTiming("/home/rexjia/qemu/temp/tb_metrics/0x10870_0x11a54.dat")
+set startTick = currTick
