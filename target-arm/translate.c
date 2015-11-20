@@ -11461,7 +11461,9 @@ static inline void gen_intermediate_code_internal(ARMCPU *cpu,
         TB_targetCode[tb_id].tbSize = tbSize;
         TB_targetCode[tb_id].startPC = TB_targetCode[tb_id].myPCs[0];
         TB_targetCode[tb_id].endPC = TB_targetCode[tb_id].myPCs[tbSize-1];
-        // fprintf(stderr, "gen_intermediate_code: Block %d size is %2d, startPC = 0x%x, endPC = 0x%x\n", tb_id, tbSize, TB_targetCode[tb_id].startPC, TB_targetCode[tb_id].endPC);
+#if BA_DEBUG
+        fprintf(stderr, "gen_intermediate_code: Block %d size is %2d, startPC = 0x%x, endPC = 0x%x\n", tb_id, tbSize, TB_targetCode[tb_id].startPC, TB_targetCode[tb_id].endPC);
+#endif
 
     /* printf("\nDebugging TB_targetCode buffer. tb_id is %u", tb_id);
     printf(", tb_IDtracker is %u\n", tb_IDtracker);
@@ -11744,18 +11746,41 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     // compose_ISS_input(opcPtr, pcPtr, tbSize);
     // if no instts. return.
     if (tbSize < 1) return;
+    static int start = 0;
+    static int end = 0;
+    static int breakNum = 2;
+    char issRunCmd[500] = "";
+    if (start == 0) {
+        if (*bbPcPtr == 0x10814) {
+            start = 1;
+            hasPred = 0;
+            sprintf(issRunCmd, "b if thePCState->_pc == 0x%x\nc\nd %d\nset startTick = currTick\n", *bbPcPtr, breakNum);
+            ++breakNum;
+            fputs(issRunCmd, stderr);
+        } else {
+            return;
+        }
+    }
+    if (end == 0) {
+        if (*bbPcPtr == 0x17564) {
+            end = 1;
+            return;
+        }
+    } else {
+        return;
+    }
 
     //NOTE!!! - bounds checking TBD  -  VERY IMPORTANT!!!!!
 
-    /*
+
     char issInputPreStart[] = "PreStart PC = ";
     char issInputPreEnd[] = "PreEnd   PC = ";
     char issInputStart[] = "Start    PC = ";
     char issInputEnd[] = "End      PC = ";
-    */
+    unsigned int i;
     //assuming PC is 32 bit and so can have 8 0s as prefix
-    // char issInputMem1[] = "        Mem = 0x00000000";
-    // char issInputMem2[] = " d=0x";
+    char issInputMem1[] = "        Mem = 0x00000000";
+    char issInputMem2[] = " d=0x";
     uint8_t brkCnt = 1; //number of times end address will be encountered
                       //encountered before BB pair's ISS execution is stopped
 
@@ -11772,9 +11797,7 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     char extnStr[] = ".dat";
     char issStimName[100] = "dat_";
     char tbMetricFname[100];
-    static int breakNum = 2;
     // char breakNumstr[10];
-    // unsigned int i;
 
     /*===================  creating ISS input file name ===================*/
     sprintf(bbStartPCstr, "0x%x", bbStartPC);
@@ -11812,7 +11835,6 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     strcat(issStimPath, issStimName);
 
     FILE *fPtr;
-    /*
     fPtr = fopen(issStimPath, "w");
     //if has predecessor, insert its opcodes
     if (hasPred && predSize > 0) {
@@ -11835,7 +11857,6 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     }
 
     fclose(fPtr);
-    */
 
     /*================  init, exec DAT on ISS, analyse trace  ================*/
     (void) gfatherPCstr;
@@ -11908,7 +11929,6 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     char tbMetricPath[100] = "/tmp/time.dat";
     */
     char pipe_name[100] = "/tmp/pipe";
-    char issRunCmd[500] = "";
     char tbMetricPath[100] = "";
     sprintf(tbMetricPath, "/home/rexjia/qemu/temp/tb_metrics/%s_%s.dat", predStartPCstr, bbStartPCstr);
 
