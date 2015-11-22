@@ -11749,9 +11749,7 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     static int ckptNum = 1;
     /*
     const int startAddr = 0x10814;
-    const int endAddr = 0x17564;
     static int start = 0;
-    static int end = 0;
     // static int breakNum = 2;
     if (start == 0) {
         if (*bbPcPtr == startAddr) {
@@ -11761,6 +11759,9 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
             return;
         }
     }
+    */
+    const int endAddr = 0x17564;
+    static int end = 0;
     if (end == 0) {
         if (*bbPcPtr == endAddr) {
             end = 1;
@@ -11769,7 +11770,6 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     } else {
         return;
     }
-    */
 
     //NOTE!!! - bounds checking TBD  -  VERY IMPORTANT!!!!!
 
@@ -11879,29 +11879,26 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     const char metricHead[] = "/home/rexjia/qemu/temp/tb_metrics/";
     char gdbCmdPath[100] = "";
     char tbMetricPath[100] = "";
-    int breakNum;
      
     if (hasPred && predSize > 0) {
         sprintf(gdbCmdPath, "%s%s_%s.gdb", gdbCmdHead, predStartPCstr, bbStartPCstr);
         sprintf(tbMetricPath, "%s%s_%s.dat", metricHead, predStartPCstr, bbStartPCstr);
-        breakNum = 2;
     } else {
         sprintf(gdbCmdPath, "%s%s.gdb", gdbCmdHead, bbStartPCstr);
         sprintf(tbMetricPath, "%s%s.dat", metricHead, bbStartPCstr);
-        breakNum = 3;
     }
 
     // Construct gdb command
     const char cmd_head[] = "set pagination off\nb atomic.cc:642\nr\nd 1\nset thePCState = &(((SimpleThread*) 0x3466000) -> _pcState)\n";
     char cmd_tail[200];
-    sprintf(cmd_tail, "b 644 if thePCState->_pc == %s\nc\nd %d\ncall dumpTiming(\"%s\")\ncall takeCheckpoint(0)\nb\nc\nq", bbEndPCstr, breakNum, tbMetricPath);
+    sprintf(cmd_tail, "b 644 if thePCState->_pc == %s\nc\nd 2\ncall dumpTiming(\"%s\")\ncall takeCheckpoint(0)\nb\nc\nq\n", bbEndPCstr, tbMetricPath);
 
     fPtr = fopen(gdbCmdPath, "w");
 
     if (hasPred && predSize > 0) {
         fprintf(fPtr, "%sset startTick = currTick\nset thePCState->_npc = %s\n%s", cmd_head, bbStartPCstr, cmd_tail);
     } else {
-        fprintf(fPtr, "%sb if thePCState->_pc == %s\nc\nd 2\nset startTick = currTick\n%s", cmd_head, bbStartPCstr, cmd_tail);
+        fprintf(fPtr, "%s%s", cmd_head, cmd_tail);
     }
     
     fclose(fPtr);
@@ -11909,8 +11906,11 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     // Construct gem5 command
     char callIssCmd[500] = "";
     char ckptCmd[100] = "";
+    const char scriptPath[] = "/home/rexjia/gem5-stable/configs/example/se.py";
+    const char binPath[] = "/home/rexjia/qemu/benchmark/sha";
+    const char issPath[] = "/home/rexjia/qemu/benchmark/m5out";
 
-    sprintf(callIssCmd, "gdb -q -x %s -args gem5.opt -r --stdout-file=sha.out ~/gem5-stable/configs/example/se.py -c sha/sha.elf -i sha/input_small.asc --cpu-type=atomic --checkpoint-dir=m5out/sha_small_out", gdbCmdPath);
+    sprintf(callIssCmd, "gdb -q -x %s -args gem5.opt -r --stdout-file=%s/sha.out %s -c %s/sha.elf -i %s/input_small.asc --cpu-type=atomic --checkpoint-dir=%s/sha_small_out", gdbCmdPath, issPath, scriptPath, binPath, binPath, issPath);
 
     uint32_t predNum;
     if (hasPred && predSize > 0) {
@@ -11921,11 +11921,11 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
         strcat(callIssCmd, "\n");
     }
 
+    system(callIssCmd);
     /*
     fprintf(stderr, "\npredID = %d, tbID = %d, ckpt = %d\n", tb_IDtracker, tbID, ckptNum);
     fputs(callIssCmd, stderr);
     */
-    // system(callIssCmd);
     /*
     // Send commands through fifo
     char pipe_name[100] = "/tmp/pipe";
