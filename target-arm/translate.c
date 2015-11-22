@@ -11747,6 +11747,7 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     // if no instts. return.
     if (tbSize < 1) return;
     static int ckptNum = 1;
+    static uint64_t ckptTick = 0;
     /*
     const int startAddr = 0x10814;
     static int start = 0;
@@ -11896,10 +11897,11 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     fPtr = fopen(gdbCmdPath, "w");
 
     if (hasPred && predSize > 0) {
-        fprintf(fPtr, "%sset startTick = currTick\nset thePCState->_npc = %s\n%s", cmd_head, bbStartPCstr, cmd_tail);
+        fprintf(fPtr, "%sset currTick = %lu\nset startTick = currTick\nset thePCState->_npc = %s\n%s", cmd_head, ckptTick, bbStartPCstr, cmd_tail);
     } else {
         fprintf(fPtr, "%s%s", cmd_head, cmd_tail);
     }
+    ckptTick += 100000;
     
     fclose(fPtr);
 
@@ -11910,7 +11912,7 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     const char binPath[] = "/home/rexjia/qemu/benchmark/sha";
     const char issPath[] = "/home/rexjia/qemu/benchmark/m5out";
 
-    sprintf(callIssCmd, "gdb -q -x %s -args gem5.opt -r --stdout-file=%s/sha.out %s -c %s/sha.elf -i %s/input_small.asc --cpu-type=atomic --checkpoint-dir=%s/sha_small_out", gdbCmdPath, issPath, scriptPath, binPath, binPath, issPath);
+    sprintf(callIssCmd, "gdb -q -x %s -args gem5.opt -r --stdout-file=%s/sha%d.out %s -c %s/sha.elf -i %s/input_small.asc --cpu-type=atomic --checkpoint-dir=%s/sha_small_out", gdbCmdPath, issPath, ckptNum, scriptPath, binPath, binPath, issPath);
 
     uint32_t predNum;
     if (hasPred && predSize > 0) {
@@ -11921,11 +11923,11 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
         strcat(callIssCmd, "\n");
     }
 
-    system(callIssCmd);
     /*
-    fprintf(stderr, "\npredID = %d, tbID = %d, ckpt = %d\n", tb_IDtracker, tbID, ckptNum);
-    fputs(callIssCmd, stderr);
     */
+    fprintf(stderr, "\npredID = %d, tbID = %d, ckpt = %d, tick = %lu\n", tb_IDtracker, tbID, ckptNum, ckptTick);
+    fputs(callIssCmd, stderr);
+    system(callIssCmd);
     /*
     // Send commands through fifo
     char pipe_name[100] = "/tmp/pipe";
@@ -11938,7 +11940,7 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     // Read metric from file
     fPtr = fopen(tbMetricPath, "r");
     if (fPtr == NULL) {
-        fPtr = fopen("/tmp/time.dat", "r");
+        fPtr = fopen("/home/rexjia/qemu/benchmark/time.dat", "r");
     }
 
     // get latency from metric files

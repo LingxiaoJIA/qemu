@@ -86,8 +86,8 @@ set startTick = currTick
   # sys.stderr.write("Debug print. bbStart = %s, bbEnd = %s, predStart = %s, predEnd = %s\n" % 
   #        (bbStartPCstr, bbEndPCstr, predStartPCstr, predEndPCstr))
   #(status, output) = commands.getstatusoutput(issRunCmd)
-  os.write(pipeout, issRunCmd)
-  #sys.stderr.write(issRunCmd + "\n")
+  #os.write(pipeout, issRunCmd)
+  sys.stderr.write(issRunCmd)
   os.close(pipeout)
 
   #=================== Analyse trace  ===================
