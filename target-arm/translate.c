@@ -11746,7 +11746,7 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     // compose_ISS_input(opcPtr, pcPtr, tbSize);
     // if no instts. return.
     if (tbSize < 1) return;
-    static int ckptNum = 1;
+    static int ckptNum = 0;
     static uint64_t ckptTick = 0;
     /*
     const int startAddr = 0x10814;
@@ -11791,11 +11791,17 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     char bbStartPCstr[50], bbEndPCstr[50];
     char predEndPCstr[50] = "0";
     char predStartPCstr[50] = "0";
-    char issStimPath[500] = "/home/rexjia/qemu/temp/in_dats/";
+    const char binPath[] = "/home/rexjia/qemu/benchmark/sha";
+    char issStimPath[200] = "";
+    char gdbCmdHead[200] = "";
+    char metricHead[200] = "";
     char extnStr[] = ".dat";
     char issStimName[100] = "dat_";
     FILE *fPtr;
 
+    sprintf(issStimPath, "%s/in_dats/", binPath);
+    sprintf(gdbCmdHead, "%s/gdb_cmds/", binPath);
+    sprintf(metricHead, "%s/tb_metrics/", binPath);
     /*===================  creating ISS input file name ===================*/
     sprintf(bbStartPCstr, "0x%x", bbStartPC);
     sprintf(bbEndPCstr, "0x%x", bbEndPC);
@@ -11876,8 +11882,6 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     // TODO: boundary check!!
 
     //char tbMetricPath[100] = "/tmp/time.dat";
-    const char gdbCmdHead[] = "/home/rexjia/qemu/temp/gdb_cmds/";
-    const char metricHead[] = "/home/rexjia/qemu/temp/tb_metrics/";
     char gdbCmdPath[100] = "";
     char tbMetricPath[100] = "";
      
@@ -11890,18 +11894,23 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     }
 
     // Construct gdb command
-    const char cmd_head[] = "set pagination off\nb atomic.cc:642\nr\nd 1\nset thePCState = &(((SimpleThread*) 0x3466000) -> _pcState)\n";
+    const char cmd_head[] = "set pagination off\nb atomic.cc:637\nr\nd 1\nset thePCState = &(((SimpleThread*) 0x3466000) -> _pcState)\n";
     char cmd_tail[200];
-    sprintf(cmd_tail, "b 644 if thePCState->_pc == %s\nc\nd 2\ncall dumpTiming(\"%s\")\ncall takeCheckpoint(0)\nb\nc\nq\n", bbEndPCstr, tbMetricPath);
+    sprintf(cmd_tail, "b 642 if thePCState->_pc == %s\nc\nd 2\nn\nset startTick = currTick\nset thePCState->_npc = %s\ncall takeCheckpoint(0)\nb 642 if thePCState->_pc == %s\nc\nd 3\nn\ncall dumpTiming(\"%s\")\nq\n", predEndPCstr, bbStartPCstr, bbEndPCstr, tbMetricPath);
 
+    fprintf(stderr, "\npredID = %d, tbID = %d, ckpt = %d, tick = %lu\n", tb_IDtracker, tbID, ckptNum, ckptTick);
     fPtr = fopen(gdbCmdPath, "w");
 
     if (hasPred && predSize > 0) {
-        fprintf(fPtr, "%sset currTick = %lu\nset startTick = currTick\nset thePCState->_npc = %s\n%s", cmd_head, ckptTick, bbStartPCstr, cmd_tail);
+        if (tb_IDtracker != 0) {
+            fprintf(fPtr, "%sset currTick = %lu\n%s", cmd_head, ckptTick, cmd_tail);
+        } else {
+            fprintf(fPtr, "%s%s", cmd_head, cmd_tail);
+        }
+        ckptTick += 100000;
     } else {
-        fprintf(fPtr, "%s%s", cmd_head, cmd_tail);
+        fprintf(fPtr, "%sb 642 if thePCState->_pc == %s\nc\nd 2\nn\ncall dumpTiming(\"%s\")\nq\n", cmd_head, bbEndPCstr, tbMetricPath);
     }
-    ckptTick += 100000;
     
     fclose(fPtr);
 
@@ -11909,13 +11918,12 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
     char callIssCmd[500] = "";
     char ckptCmd[100] = "";
     const char scriptPath[] = "/home/rexjia/gem5-stable/configs/example/se.py";
-    const char binPath[] = "/home/rexjia/qemu/benchmark/sha";
     const char issPath[] = "/home/rexjia/qemu/benchmark/m5out";
 
     sprintf(callIssCmd, "gdb -q -x %s -args gem5.opt -r --stdout-file=%s/sha%d.out %s -c %s/sha.elf -i %s/input_small.asc --cpu-type=atomic --checkpoint-dir=%s/sha_small_out", gdbCmdPath, issPath, ckptNum, scriptPath, binPath, binPath, issPath);
 
     uint32_t predNum;
-    if (hasPred && predSize > 0) {
+    if (tb_IDtracker != 0) {
         predNum = TB_record[tb_IDtracker].predCount - 1;
         sprintf(ckptCmd, " -r %d\n", TB_record[tb_IDtracker].tbMetrics[predNum].ckptID);
         strcat(callIssCmd, ckptCmd);
@@ -11923,11 +11931,10 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
         strcat(callIssCmd, "\n");
     }
 
-    /*
-    */
-    fprintf(stderr, "\npredID = %d, tbID = %d, ckpt = %d, tick = %lu\n", tb_IDtracker, tbID, ckptNum, ckptTick);
     fputs(callIssCmd, stderr);
     system(callIssCmd);
+    /*
+    */
     /*
     // Send commands through fifo
     char pipe_name[100] = "/tmp/pipe";

@@ -1,0 +1,14 @@
+PreStart PC = 0x24ab0
+PreEnd   PC = 0x24abc
+
+Start    PC = 0x246c0
+End      PC = 0x246c8
+
+        Mem = 0x0000000024ab0 d=0xe52de004
+        Mem = 0x0000000024ab4 d=0xe24dd00c
+        Mem = 0x0000000024ab8 d=0xe58d0004
+        Mem = 0x0000000024abc d=0xebfffeff
+
+        Mem = 0x00000000246c0 d=0xe3a03000
+        Mem = 0x00000000246c4 d=0xe92d47f0
+        Mem = 0x00000000246c8 d=0xebffb63c

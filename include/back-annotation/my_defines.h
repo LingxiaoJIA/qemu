@@ -8,7 +8,10 @@
 
 extern uint32_t Cumulative_latency;
 extern uint32_t tb_IDtracker; //tracks path of execution through ID
+extern uint32_t pred_IDtracker; // tracks predecessor in path of execution through ID
 extern target_ulong tb_pctracker;
+extern target_ulong pred_pctracker;
+extern target_ulong gfather_pctracker;
 extern void cz_unseenPair(uint32_t tbID);
 
 //data struct to store per TB metrics for a given
