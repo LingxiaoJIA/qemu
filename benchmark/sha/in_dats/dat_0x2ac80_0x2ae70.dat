@@ -1,0 +1,13 @@
+PreStart PC = 0x2ac80
+PreEnd   PC = 0x2ac88
+
+Start    PC = 0x2ae70
+End      PC = 0x2ae78
+
+        Mem = 0x000000002ac80 d=0xe2433003
+        Mem = 0x000000002ac84 d=0xe353001e
+        Mem = 0x000000002ac88 d=0x979ff103
+
+        Mem = 0x000000002ae70 d=0xe5903004
+        Mem = 0x000000002ae74 d=0xe58d300c
+        Mem = 0x000000002ae78 d=0xeaffffa5

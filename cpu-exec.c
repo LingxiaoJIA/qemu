@@ -634,7 +634,12 @@ int cpu_exec(CPUState *cpu)
     printf ("\nTotal dynamic instruction latencies are %u\n",
             Cumulative_latency);
 #endif
-    fprintf (stderr, "\nTotal dynamic instruction latencies are %u\n", Cumulative_latency);
+    /*
+    FILE *fPtr = fopen("/home/rexjia/qemu/benchmark/latency.dat", "w");
+    fprintf (fPtr, "Total dynamic instruction latencies are %u\n", Cumulative_latency);
+    fclose(fPtr);
+    */
+    fprintf (stderr, "Total dynamic instruction latencies are %u\n", Cumulative_latency);
     /* End Modified */
 
     return ret;

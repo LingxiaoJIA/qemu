@@ -14,6 +14,7 @@
 uint32_t Cumulative_latency = 0;
 TBInfo TB_record[MAX_TB] = {{{{0}}}}; // Need bound checking on this
 uint32_t tb_IDtracker = 0;      // tracks path of execution through ID
+uint32_t pred_IDtracker = 0;      // tracks predecessor in path of execution through ID
 target_ulong tb_pctracker = 0;  // tracks path of execution
 target_ulong pred_pctracker = 0; // tracks predecessor in path of execution
 target_ulong gfather_pctracker = 0; // tracks predecessor's predecessor in path of execution
@@ -37,6 +38,7 @@ void HELPER(increment_latency)(uint64_t tb_id, uint64_t startPC)
     gfather_pctracker = pred_pctracker;
     pred_pctracker = tb_pctracker;
     tb_pctracker = startPC;
+    pred_IDtracker = tb_IDtracker;
     tb_IDtracker = tb_id;
 }
 

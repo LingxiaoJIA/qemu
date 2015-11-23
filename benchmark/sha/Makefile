@@ -4,7 +4,7 @@
 # To use NIST's modified SHA of 7/11/94, define USE_MODIFIED_SHA
 
 CC = arm-linux-gnueabi-gcc
-CFLAGS = -static
+CFLAGS = -static -O3
 
 sha.elf:	sha_driver.o sha.o
 	$(CC) $(CFLAGS) -o $@ sha_driver.o sha.o

@@ -1,0 +1,40 @@
+PreStart PC = 0x2ad14
+PreEnd   PC = 0x2ad1c
+
+Start    PC = 0x2ad20
+End      PC = 0x2ad94
+
+        Mem = 0x000000002ad14 d=0xe5b03008
+        Mem = 0x000000002ad18 d=0xe3530000
+        Mem = 0x000000002ad1c d=0x1affffd7
+
+        Mem = 0x000000002ad20 d=0xe59d3010
+        Mem = 0x000000002ad24 d=0xe351000f
+        Mem = 0x000000002ad28 d=0xe5873000
+        Mem = 0x000000002ad2c d=0xe59d300c
+        Mem = 0x000000002ad30 d=0xe5884000
+        Mem = 0x000000002ad34 d=0xe5863000
+        Mem = 0x000000002ad38 d=0xe59d3008
+        Mem = 0x000000002ad3c d=0xe5853000
+        Mem = 0x000000002ad40 d=0xe59d302c
+        Mem = 0x000000002ad44 d=0xe5823000
+        Mem = 0x000000002ad48 d=0xe59d3030
+        Mem = 0x000000002ad4c d=0xe5823004
+        Mem = 0x000000002ad50 d=0xe59d3024
+        Mem = 0x000000002ad54 d=0xe5823008
+        Mem = 0x000000002ad58 d=0xe59d3028
+        Mem = 0x000000002ad5c d=0xe582300c
+        Mem = 0x000000002ad60 d=0xe59d3004
+        Mem = 0x000000002ad64 d=0xe5823010
+        Mem = 0x000000002ad68 d=0xe59f313c
+        Mem = 0x000000002ad6c d=0xe59d2014
+        Mem = 0x000000002ad70 d=0xe5832000
+        Mem = 0x000000002ad74 d=0xe59d301c
+        Mem = 0x000000002ad78 d=0xe59f211c
+        Mem = 0x000000002ad7c d=0xe58b3000
+        Mem = 0x000000002ad80 d=0xe59d3018
+        Mem = 0x000000002ad84 d=0xe58a3000
+        Mem = 0x000000002ad88 d=0xe59d3020
+        Mem = 0x000000002ad8c d=0xe5893000
+        Mem = 0x000000002ad90 d=0xe59f3108
+        Mem = 0x000000002ad94 d=0x1a000006
