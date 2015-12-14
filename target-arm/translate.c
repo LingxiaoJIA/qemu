@@ -11903,7 +11903,11 @@ static void characterize_TB(uint32_t *bbOpcPtr, target_ulong *bbPcPtr,
 
     if (hasPred && predSize > 0) {
         if (tb_IDtracker != 0) {
-            fprintf(fPtr, "%sset currTick = %lu\n%s", cmd_head, ckptTick, cmd_tail);
+            if (bbStartPC == 0x25c5c) {
+                fprintf(fPtr, "%sset currTick = %lu\nb 642 if thePCState->_pc == %s\nc\nd 2\nb\nc\nc\nc\nd 3\nn\nset startTick = currTick\nset thePCState->_npc = %s\ncall takeCheckpoint(0)\nb 642 if thePCState->_pc == %s\nc\nd 4\nn\ncall dumpTiming(\"%s\")\nq\n", cmd_head, ckptTick, predEndPCstr, bbStartPCstr, bbEndPCstr, tbMetricPath);
+            } else {
+                fprintf(fPtr, "%sset currTick = %lu\n%s", cmd_head, ckptTick, cmd_tail);
+            }
         } else {
             fprintf(fPtr, "%s%s", cmd_head, cmd_tail);
         }
